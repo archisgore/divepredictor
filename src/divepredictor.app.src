@@ -1,0 +1,12 @@
+{application, divepredictor,
+ [
+  {description, ""},
+  {vsn, "1"},
+  {registered, []},
+  {applications, [
+                  kernel,
+                  stdlib
+                 ]},
+  {mod, { divepredictor_app, []}},
+  {env, []}
+ ]}.
