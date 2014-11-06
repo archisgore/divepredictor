@@ -3,11 +3,7 @@
   {description, "This application finds sites that are safe to dive at any given time."},
   {vsn, "1"},
   {registered, []},
-  {applications, [
-                  kernel,
-                  stdlib,
-                  cowboy
-                 ]},
+  {applications, [kernel, stdlib, n2o, kvs]},
   {mod, { divepredictor_app, []}},
-  {env, [{http_port, 8080}]}
+  {env, []}
  ]}.

@@ -1,44 +1,15 @@
 -module(divepredictor_app).
-
 -behaviour(application).
+-export([start/0, start/2, stop/1, main/1]).
 
-%% Application callbacks
--export([start/2, stop/1]).
+main(A) ->
 
--define(C_ACCEPTORS, 100).
-%% ===================================================================
-%% Application callbacks
-%% ===================================================================
+   mad_repl:main(A).
 
-start(_StartType, _StartArgs) ->
-    Routes = routes(),
-    Dispatch = cowboy_router:compile(Routes),
-    Port = port(),
-    TransOpts = [{port, Port}],
-    ProtoOpts = [{env, [{dispatch, Dispatch}]}],
-    {ok, _} = cowboy:start_http(http, ?C_ACCEPTORS, TransOpts, ProtoOpts),
-    divepredictor_sup:start_link().
+start() -> start(normal, []).
+start(_StartType, _StartArgs) -> 
 
-stop(_State) ->
-    ok.
+    Res = web_sup:start_link(),
+    Res.
 
-
-
-%% ===================================================================
-%% Internal functions
-%% ===================================================================
-routes() ->
-    [
-     {'_', [
-            {"/", divepredictor_handler, []}
-           ]}
-    ].
-
-port() ->
-    case os:getenv("PORT") of
-        false ->
-            {ok, Port} = application:get_env(http_port),
-            Port;
-        Other ->
-            list_to_integer(Other)
-    end.
+stop(_State) -> ok.
