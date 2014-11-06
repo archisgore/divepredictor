@@ -6,5 +6,4 @@
   {applications, [kernel, stdlib, ranch, cowboy, n2o]},
   {mod, { divepredictor_app, []}},
   {env, []},
-  {n2o,  [{route,routes}]}
  ]}.
