@@ -4,13 +4,12 @@
 -include_lib("n2o/include/wf.hrl").
 
 main() -> 
-	[head(), body()].
-
-head() ->
-	#head{body=title()}.
-
-title() ->
-	#title{body="Dive Site Finder"}.
-
-body() ->
-	#body{body="Hello World!"}.
+	[#dtl{
+		file="/index.html", 
+		folder="priv",
+		ext="html", 
+		bindings=[
+			{template, <<"Hello World">>}
+		],
+		bind_script=true
+	}].
