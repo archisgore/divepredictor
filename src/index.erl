@@ -4,4 +4,13 @@
 -include_lib("n2o/include/wf.hrl").
 
 main() -> 
-	#span{body="Hello"}.
+	[head(), body()].
+
+head() ->
+	#head{body=title()}.
+
+title() ->
+	#title{body="Dive Site Finder"}.
+
+body() ->
+	#body{body="Hello World!"}.
