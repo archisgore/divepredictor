@@ -5,9 +5,7 @@
 
 main() -> 
 	[#dtl{
-		file="/index.html", 
-		folder="priv",
-		ext="html", 
+		file="index", 
 		bindings=[
 			{template, <<"Hello World">>}
 		],
