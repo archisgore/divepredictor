@@ -5,5 +5,5 @@
   {registered, []},
   {applications, [kernel, stdlib, ranch, cowboy, n2o]},
   {mod, { divepredictor_app, []}},
-  {env, []},
+  {env, [{http_port, 8080}]}
  ]}.
