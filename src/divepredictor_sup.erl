@@ -8,7 +8,7 @@ start_link() -> supervisor:start_link({local, ?MODULE}, ?MODULE, []).
 
 init([]) ->
 
-    case cowboy:start_http(http, 100, [{port, wf:config(n2o,port,8080)}],
+    case cowboy:start_http(http, 100, [{port, wf:config(n2o,port,80)}],
                                     [{env, [{dispatch, dispatch_rules()}]}]) of
         {ok, _} -> ok;
         {error,{{_,{_,_,{X,_}}},_}} -> io:format("Can't start Web Server: ~p\r\n",[X]), halt(abort,[]);
