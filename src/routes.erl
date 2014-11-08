@@ -19,9 +19,6 @@ route_prefix(<<"/ws/",P/binary>>) -> route(P);
 route_prefix(<<"/",P/binary>>) -> route(P);
 route_prefix(P) -> route(P).
 
-route(<<>>)              -> index;
-route(<<"index">>)       -> index;
-route(<<"login">>)       -> index;
-route(<<"favicon.ico">>) -> static_file;
-route(<<"divepredictor.css">>) -> static_file;
-route(_) -> index.
+route(<<"index">>) -> index;
+route(<<>>) -> not_found;
+route(_) -> not_found.
