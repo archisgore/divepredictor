@@ -40,7 +40,7 @@ content() ->
 				]},
 				#tr{cells=[
 					#td{colspan="4", class=["centered"], body=[
-						#submit{body="Search Times"]}
+						#submit{body="Search Times"}
 					]}
 				]}]
 		}]}
@@ -52,3 +52,15 @@ event(search) ->
 
 selectable_divesites() ->
 	[#option{label=Site#divesite.name, value=Site#divesite.id, selected=(selectedDiveSite() == Site#divesite.id)} || Site <- divesites:list()].
+
+selectedStartDate() -> [].
+
+selectedStartTime() -> [].
+
+selectedEndDate() -> [].
+
+selectedEndTime() -> [].
+
+selectedNumberOfSolutions() -> [].
+
+selectedDiveSite() -> [].
