@@ -7,10 +7,10 @@
 main() -> 
 	[#dtl{
 		file="index", 
-		ext="dtl",
+		ext="html",
 		bind_script=true,
 		app=divepredictor,
-		bindings=[{content, "content()"}]
+		bindings=[{content, content()}]
 	}].
 
 content() ->
