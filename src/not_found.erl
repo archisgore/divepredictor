@@ -6,7 +6,7 @@
 main() -> 
 	[#dtl{
 		file="not_found", 
-		ext="html",
+		ext="dtl",
 		bind_script=true,
 		app=divepredictor,
 		bindings=[]
