@@ -10,7 +10,7 @@ main() ->
 		ext="dtl",
 		bind_script=true,
 		app=divepredictor,
-		bindings=[{content, content()}]
+		bindings=[{content, "content()"}]
 	}].
 
 content() ->
