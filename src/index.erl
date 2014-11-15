@@ -5,17 +5,10 @@
 -include("include/divesite.hrl").
 
 main() -> 
-	[#dtl{
-		file="index", 
-		ext="dtl",
-		bind_script=true,
-		app=divepredictor,
-		bindings=[{content, content()}]
-	}].
+	[#dtl{app=divepredictor,
+		bindings=[{content, content()}]}].
 
-content() ->
-	[
-		#form{body=[#table{class=["standardTable"],
+content() -> [#form{body=[#table{class=["standardTable"],
 			header=[#tr{cells=[
 					#th{body="Dive site"},
 					#th{body="Start Date"},
@@ -43,8 +36,7 @@ content() ->
 						#submit{body="Search Times"}
 					]}
 				]}]
-		}]}
-	].
+		}]}].
 
 
 event(search) ->
