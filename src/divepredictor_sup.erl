@@ -8,7 +8,7 @@ start_link() -> supervisor:start_link({local, ?MODULE}, ?MODULE, []).
 
 init([]) ->
 
-    case cowboy:start_http(http, 100, [{port, wf:config(n2o,port,port())}],
+    case cowboy:start_http(http, 100, [{port, wf:config(n2o,port,80)}],
                                     [{env, [{dispatch, dispatch_rules()}]}]) of
         {ok, _} -> ok;
         {error,{{_,{_,_,{X,_}}},_}} -> io:format("Can't start Web Server: ~p\r\n",[X]), halt(abort,[]);
@@ -22,6 +22,9 @@ dispatch_rules() ->
         [{'_', [
             {"/static/[...]", n2o_dynalo, {dir, "priv/static", mime()}},
             {"/n2o/[...]", n2o_dynalo, {dir, "deps/n2o/priv", mime()}},
+            {"/rest/:resource", rest_cowboy, []},
+            {"/rest/:resource/:id", rest_cowboy, []},
+            {"/ws/[...]", bullet_handler, [{handler, n2o_bullet}]},
             {'_', n2o_cowboy, []}
     ]}]).
 

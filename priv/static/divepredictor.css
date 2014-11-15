@@ -1,14 +1,30 @@
-#title {
+.centered {
 	text-align: center;
+}
+
+.largeText {
 	font-weight: bold;
 	display: block;
-};
+	font-size: 40pt;
+}
 
-#subtitle {
-	text-align: center;
+.mediumText {
 	display: block;
-};
+	font-size: 20pt;
+}
 
-#disclaimer {
+.italic {
 	font-style: italic;
+}
+
+table {
+	border: 5px solid black;
+}
+
+thead {
+	background-color: gray;
+}
+
+td {
+	border: 1px solid black;
 }

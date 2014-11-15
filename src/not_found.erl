@@ -9,5 +9,5 @@ main() ->
 		ext="html",
 		bind_script=true,
 		app=divepredictor,
-		bindings=[{foo, <<"Foo">>}]
+		bindings=[]
 	}].

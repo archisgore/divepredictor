@@ -19,6 +19,5 @@ route_prefix(<<"/ws/",P/binary>>) -> route(P);
 route_prefix(<<"/",P/binary>>) -> route(P);
 route_prefix(P) -> route(P).
 
-route(<<"index">>) -> index;
-route(<<>>) -> not_found;
+route(<<"index",P>>) -> index;
 route(_) -> not_found.
