@@ -11,7 +11,9 @@
 		<span class="italic">DISCLAIMER: This tool is meant for academic/experimental purposes only. YOU MUST NOT use this tool for planning real dives. This tool WILL be wrong.</span>
 		<hr>
 
-		{{content}}
+		{{form}}
+		<br/>
+		{{results}}
 		<script>{{script}}</script>
 		<script src='/n2o/protocols/bert.js'></script>
 		<script src='/n2o/protocols/binary.js'></script>
