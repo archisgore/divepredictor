@@ -40,11 +40,11 @@ results() ->
 		{_, _, undefined} -> [];
 		{_, undefined, _} -> [];
 		{undefined, _, _} -> [];
-		{DiveSite, StartDate, SolutionCount} -> [#ul{body=solutions(DiveSite, StartDate, SolutionCount)}] end.
-
-solutions((DiveSite, StartDate, SolutionCount)) ->
-	<<Year,"-",Month,"-",Day>> = StartDate,
-	[#li{body="Diveable at "} | computer:solve(DiveSite, {Year, Month, Day}, list_to_integer(SolutionCount))].
+		{DiveSiteId, StartDate, SolutionCount} -> 
+			[#table{body=[#tr{cells=[
+				#td{body=[#span{body=google_map(DiveSiteId)}]},
+				#td{body=[#ul{body=solutions_list_items(DiveSiteId, StartDate, SolutionCount)}]}
+			]}]}] end.
 
 selectable_divesites() ->
 	[#option{label=Site#divesite.name, value=Site#divesite.id, selected=(selectedDiveSite() == Site#divesite.id)} || Site <- divesites:list()].
@@ -76,9 +76,46 @@ selectedNumberOfSolutions() ->
 			E
 	end.
 
+toDateTimeString(DateTime) ->
+	{Date, Time} = DateTime,
+	toDateString(Date) ++ " " ++ toTimeString(Time).
+
 toDateString(Date) -> 
 	{Year, Month, Day} = Date,
-	integer_to_string_of_length(Year, 4) ++ "-" ++ integer_to_string_of_length(Month, 2) ++ "-" ++ integer_to_string_of_length(Day, 2).
+	divepredictorformatting:integer_to_string_of_length(Year, 4) ++ "-" ++ 
+		divepredictorformatting:integer_to_string_of_length(Month, 2) ++ "-" ++ 
+		divepredictorformatting:integer_to_string_of_length(Day, 2).
 
-integer_to_string_of_length(Integer, Length) ->
-	string:right(integer_to_list(Integer), Length, $0).
+toTimeString(Time) ->
+	{Hour, Minute, Second} = Time,
+	divepredictorformatting:integer_to_string_of_length(Hour, 2) ++ ":" ++ 
+		divepredictorformatting:integer_to_string_of_length(Minute, 2) ++ ":" ++ 
+		divepredictorformatting:integer_to_string_of_length(Second, 2).
+
+solutions_list_items(DiveSiteId, StartDate, SolutionCount) ->
+	[Year,Month,Day] = re:split(StartDate, "-"),
+	[#li{body=solution_to_text(Solution)} || Solution <- solutions(DiveSiteId, Year, Month, Day, SolutionCount)].
+
+solution_to_text(Solution) ->
+	DiveSite = divesites:site_by_id(Solution#divesolution.siteId),
+	io_lib:format("~p divable at <b>~p</b> and suitable for <b>~p minutes</b>", [DiveSite#divesite.name, 
+			toDateTimeString(Solution#divesolution.time), Solution#divesolution.length]).
+
+solutions(DiveSiteId, Year, Month, Day, SolutionCount) ->
+		 computer:solve(DiveSiteId, {binary_to_integer(Year), binary_to_integer(Month), binary_to_integer(Day)}, SolutionCount).
+
+google_map(DiveSiteId) ->
+	DiveSite = divesites:site_by_id(DiveSiteId),
+	[#iframe{
+		width=600, 
+	  	height=450,
+	  	style="border",
+	  	src=google_map_uri(DiveSite#divesite.location)}].
+
+
+google_map_uri(Location) ->
+	case {Location#divelocation.latitude, Location#divelocation.longitude} of
+		{-1, -1} -> "https://www.google.com/maps/embed/v1/place?key=AIzaSyD9JtvXxQOJAb5c0R0qrNGIRu-AC7DUZDw&zoom=18&q=" ++ Location#divelocation.address;
+		{_, _} -> "https://www.google.com/maps/embed/v1/view?key=AIzaSyD9JtvXxQOJAb5c0R0qrNGIRu-AC7DUZDw&zoom=18&center="
+			++ Location#divelocation.latitude ++ "," ++ Location#divelocation.longitude 
+	end.

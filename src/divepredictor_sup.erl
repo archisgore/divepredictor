@@ -7,7 +7,7 @@
 start_link() -> supervisor:start_link({local, ?MODULE}, ?MODULE, []).
 
 init([]) ->
-
+    inets:start(),
     case cowboy:start_http(http, 100, [{port, wf:config(n2o,port,port())}],
                                     [{env, [{dispatch, dispatch_rules()}]}]) of
         {ok, _} -> ok;

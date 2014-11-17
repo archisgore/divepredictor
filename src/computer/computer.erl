@@ -1,5 +1,8 @@
 -module(computer).
--export(solve/3).
+-include_lib("include/divesite.hrl").
+-export([solve/3]).
 
-solve(DiveSite, StartDate, SolutionCount) ->
-	io:fwrite("Requested solutions for: ~p, ~p, ~p ~n", [DiveSite, StartDate, SolutionCount]).
+solve(DiveSiteId, StartDate, SolutionCount) ->
+	DiveSite = divesites:site_by_id(DiveSiteId),
+	
+	[#divesolution{siteId=DiveSiteId, time={{2014, 11, 17}, {00, 00, 00}}, length=30}].
