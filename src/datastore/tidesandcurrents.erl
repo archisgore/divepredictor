@@ -18,24 +18,26 @@ get_currents_for_date(Date, CurrentStationId) ->
 %%=================================================================================================================================
 
 handle_call({tides, Date, TideStationId}, _From, State) ->
-	case fetch_from_database(Date, TideStationId, tides) of
+	case fetch_from_database(tides, Date, TideStationId) of
 		[] -> 
 			Tides = fetch_from_url(Date, TideStationId, fun tide_url_formatter/2, fun tide_response_parser/1),
-			ok = put_into_database(Date, TideStationId, tides),
+			ok = put_into_database(tides, Date, TideStationId, Tides),
 			{reply, Tides, State};
 		E -> {reply, E, State} end;
 
 handle_call({currents, Date, CurrentStationId}, _From, State) ->
-	case fetch_from_database(Date, CurrentStationId, currents) of
+	case fetch_from_database(currents, Date, CurrentStationId) of
 		[] -> 
-			Tides = fetch_from_url(Date, CurrentStationId, fun current_url_formatter/2, fun current_response_parser/1),
-			ok = put_into_database(Date, CurrentStationId, currents),
-			{reply, Tides, State};
+			Currents = fetch_from_url(Date, CurrentStationId, fun current_url_formatter/2, fun current_response_parser/1),
+			ok = put_into_database(currents, Date, CurrentStationId, Currents),
+			{reply, Currents, State};
 		E -> {reply, E, State} end.
 
-put_into_database(Date, StationId, Table) -> ok.
+put_into_database(Table, Date, StationId, Data) -> 
+	ok = database:store(Table, [Date, StationId], Data).
 
-fetch_from_database(Date, StationId, Table) -> [].
+fetch_from_database(Table, Date, StationId) -> 
+	database:fetch(Table, [Date, StationId]).
 
 fetch_from_url(Date, StationId, UrlFormatter, ResponseParser) ->
 	Url = UrlFormatter(Date, StationId),
@@ -84,6 +86,7 @@ init([]) ->
 	{ok, []}.
 
 handle_cast(_, _) ->
+	io:fwrite("Asynchronous requests not supported ~p", [{local, ?MODULE}]),
 	ok.
 
 handle_info(Info, State) ->
