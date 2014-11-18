@@ -7,13 +7,16 @@
 start_link() -> supervisor:start_link({local, ?MODULE}, ?MODULE, []).
 
 init([]) ->
-    inets:start(),
     case cowboy:start_http(http, 100, [{port, wf:config(n2o,port,port())}],
                                     [{env, [{dispatch, dispatch_rules()}]}]) of
         {ok, _} -> ok;
         {error,{{_,{_,_,{X,_}}},_}} -> io:format("Can't start Web Server: ~p\r\n",[X]), halt(abort,[]);
         X -> io:format("Unknown Error: ~p\r\n",[X]), halt(abort,[]) end,
-    {ok, {{one_for_one, 5, 10}, []}}.
+    Children=[
+        {tidesandcurrents_sup, {tidesandcurrents_sup, start_link, []}, permanent, infinity, supervisor, [tidesandcurrents]},
+        {database_sup, {database_sup, start_link, []}, permanent, infinity, supervisor, [database]}
+        ],
+    {ok, {{one_for_one, 5, 10}, Children}}.
 
 mime() -> [{mimetypes,cow_mimetypes,all}].
 
@@ -26,7 +29,7 @@ dispatch_rules() ->
             {"/rest/:resource/:id", rest_cowboy, []},
             {"/ws/[...]", bullet_handler, [{handler, n2o_bullet}]},
             {'_', n2o_cowboy, []}
-    ]}]).
+    ]}]).   
 
 port() ->
     case os:getenv("PORT") of

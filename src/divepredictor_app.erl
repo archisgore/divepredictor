@@ -9,7 +9,7 @@ main(A) ->
 start() -> start(normal, []).
 start(_StartType, _StartArgs) -> 
 
-    Res = divepredictor_sup:start_link(),
-    Res.
+    DivePredictorRes = divepredictor_sup:start_link(),
+    DivePredictorRes.
 
 stop(_State) -> ok.

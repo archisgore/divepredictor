@@ -1,5 +1,4 @@
 -module(divesites).
--compile(export_all).
 -export([list/0, site_by_id/1]).
 -include("include/divesite.hrl").
 
