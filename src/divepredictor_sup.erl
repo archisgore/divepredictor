@@ -13,6 +13,7 @@ init([]) ->
         {error,{{_,{_,_,{X,_}}},_}} -> io:format("Can't start Web Server: ~p\r\n",[X]), halt(abort,[]);
         X -> io:format("Unknown Error: ~p\r\n",[X]), halt(abort,[]) end,
     Children=[
+        {pgsql_connection_sup, {pgsql_connection_sup, start_link, []}, permanent, infinity, supervisor, [pgsql_connection]},
         {tidesandcurrents_sup, {tidesandcurrents_sup, start_link, []}, permanent, infinity, supervisor, [tidesandcurrents]},
         {database_sup, {database_sup, start_link, []}, permanent, infinity, supervisor, [database]}
         ],

@@ -20,61 +20,55 @@ get_currents_for_date(Date, CurrentStationId) ->
 handle_call({tides, Date, TideStationId}, _From, State) ->
 	case fetch_from_database(tides, Date, TideStationId) of
 		[] -> 
-			Tides = fetch_from_url(Date, TideStationId, fun tide_url_formatter/2, fun tide_response_parser/1),
-			ok = put_into_database(tides, Date, TideStationId, Tides),
+			Tides = fetch_from_url(Date, TideStationId, fun tides:url_formatter/2, fun tides:response_parser/2),
+			ok = put_into_database(tides, Tides),
 			{reply, Tides, State};
 		E -> {reply, E, State} end;
 
 handle_call({currents, Date, CurrentStationId}, _From, State) ->
 	case fetch_from_database(currents, Date, CurrentStationId) of
 		[] -> 
-			Currents = fetch_from_url(Date, CurrentStationId, fun current_url_formatter/2, fun current_response_parser/1),
-			ok = put_into_database(currents, Date, CurrentStationId, Currents),
+			Currents = fetch_from_url(Date, CurrentStationId, fun currents:url_formatter/2, fun currents:response_parser/2),
+			ok = put_into_database(currents, Currents),
 			{reply, Currents, State};
 		E -> {reply, E, State} end.
 
-put_into_database(Table, Date, StationId, Data) -> 
-	ok = database:store(Table, [Date, StationId], Data).
+put_into_database(Table, Entries) -> 
+	ok = database:store(io_lib:format("INSERT INTO ~s VALUES ($1, $2, $3, $4, $5);", [Table]), to_database_entries(Entries)).
 
 fetch_from_database(Table, Date, StationId) -> 
-	database:fetch(Table, [Date, StationId]).
+	from_database_entries(database:fetch(lists:flatten(io_lib:format("SELECT * FROM ~s WHERE id='~s' AND day='~s';", 
+		[Table, StationId, to_date_string(Date)])))).
 
 fetch_from_url(Date, StationId, UrlFormatter, ResponseParser) ->
 	Url = UrlFormatter(Date, StationId),
 	io:fwrite("Calling URL: ~ts~n", [Url]),
 	{ok, {{_, ResponseCode, ReasonPhrase}, _, Body}} = httpc:request(Url),
 	case ResponseCode of
-		200 -> ResponseParser(Body);
+		200 -> ResponseParser(Body, StationId);
 		_ -> io:fwrite("Received response ~p, Reason ~p. Aborting data fetch.~n", [ResponseCode, ReasonPhrase]),
 			[] end.
 
-tide_url_formatter(Date, StationId) ->
-	{Year, Month, Day} = Date,
-	"http://tidesandcurrents.noaa.gov/noaatidepredictions/viewDailyPredictions.jsp?bmon=" ++
-		divepredictorformatting:integer_to_string_of_length(Month, 2) ++ 
-		"&bday=" ++ divepredictorformatting:integer_to_string_of_length(Day, 2) ++ 
-		"&byear=" ++ divepredictorformatting:integer_to_string_of_length(Year, 4) ++
-		"&timelength=daily&timeZone=2&dataUnits=1&datum=MLLW&timeUnits=2&interval=highlow&format=Submit&Stationid="
-		++ StationId.
+to_date_string({Year, Month, Day}) ->
+	lists:flatten(io_lib:format("~s/~s/~s", 
+		[divepredictorformatting:integer_to_string_of_length(Year,4), 
+			divepredictorformatting:integer_to_string_of_length(Month,2),
+			divepredictorformatting:integer_to_string_of_length(Day,2)])).
 
-tide_response_parser(Response) -> 
-	%%io:fwrite("Response recieved for Tide URL: ~ts~n", [Response]),
-	[].
+to_time_string({Hour, Minute, Second}) ->
+	lists:flatten(io_lib:format("~s:~s:~s", 
+		[divepredictorformatting:integer_to_string_of_length(Hour,2), 
+			divepredictorformatting:integer_to_string_of_length(Minute,2),
+			divepredictorformatting:integer_to_string_of_length(Second,2)])).
 
-current_url_formatter(Date, StationId) ->
-	{Year, Month, Day} = Date,
-	"http://tidesandcurrents.noaa.gov/noaacurrents/DownloadPredictions?fmt=xml&i=&d=" 
-	++ divepredictorformatting:integer_to_string_of_length(Year, 4) ++ "-" 
-	++divepredictorformatting:integer_to_string_of_length(Month, 2) ++ "-" 
-	++ divepredictorformatting:integer_to_string_of_length(Day, 2) ++ "&r=1&tz=LST%2fLDT&u=1&id=" 
-	++ StationId 
-	++ "&t=am%2fpm&i=&threshold=&thresholdvalue=".
+%% Convert to Database date times
+to_database_entries(Entries) ->
+	[ [StationId, to_date_string(Date), to_time_string(Time), Type, Magnitude] || [StationId, Date, Time, Type, Magnitude] <- Entries].
 
-current_response_parser(Response) -> 
-	io:fwrite("Response recieved for Current URL: ~ts~n", [Response]),
-	[].
-
-
+%% Convert from binary strings to strings
+from_database_entries(Entries) ->
+	[[binary_to_list(StationId), Date, Time, binary_to_list(Type), Magnitude] || 
+		{StationId, Date, Time, Type, Magnitude} <- Entries].
 
 %%==============================================================================
 %% Server Functions

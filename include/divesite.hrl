@@ -19,3 +19,17 @@
 	time,
 	length
 	}).
+
+-record(current, {
+		stationId,
+		dateTime,
+		type,
+		magnitude
+	}).
+
+-record(tide, {
+		stationId,
+		dateTime,
+		type,
+		magnitude
+	}).
