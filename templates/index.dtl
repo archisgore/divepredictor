@@ -50,5 +50,7 @@
 		<script src='/n2o/n2o.js'></script>
 		<script src='https://synrc.com/hi.js'></script>
 		<script>N2O_start();</script>
+		<hr/>
+		<span class="italic">Full Source code for this site is available here: <a href="https://github.com/archisgore/DivePredictor">https://github.com/archisgore/DivePredictor</a></span>
 	</body>
 </html>
