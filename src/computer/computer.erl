@@ -1,18 +1,40 @@
+%%******************************************************************************************************************
+%%*******************************************************************************************************************
+% DivePredictor - A Erlang engine to compute suitability to dive a site, based on prolog-like rules, and
+% cached tide/current data from the NOAA.
+%
+%   Copyright (C) 2014  Archis Gore
+%    This file is part of DivePredictor.
+%
+%    DivePredictor is free software: you can redistribute it and/or modify
+%    it under the terms of the GNU General Public License as published by
+%    the Free Software Foundation, either version 3 of the License, or
+%    (at your option) any later version.
+%
+%    DivePredictor is distributed in the hope that it will be useful,
+%    but WITHOUT ANY WARRANTY; without even the implied warranty of
+%    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+%    GNU General Public License for more details.
+%
+%    You should have received a copy of the GNU General Public License
+%    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+%%******************************************************************************************************************
+%%*******************************************************************************************************************/
+
 -module(computer).
 -include_lib("include/divesite.hrl").
 -export([solve/3]).
 
 %% Upper bound search to 360 days from start
 solve(DiveSiteId, StartDate, SolutionCount) ->
-	solve(DiveSiteId, StartDate, SolutionCount, 360). 
+	solve(DiveSiteId, StartDate, SolutionCount, [], 360). 
 
 %% Stop when no more days left
-solve(_, _, _, 0) -> [];
+solve(_, _, _, PreviousSolutions, 0) -> PreviousSolutions;
 
-solve(DiveSiteId, StartDate, SolutionCount, MaxDays) ->
+solve(DiveSiteId, StartDate, DesiredSolutionCount, PreviousSolutions, MaxDays) ->
 	DiveSite = divesites:site_by_id(DiveSiteId),
 	Tides = tidesandcurrents:get_tides_for_date(StartDate, DiveSite#divesite.noaaTideStationId),
 	Currents = tidesandcurrents:get_currents_for_date(StartDate, DiveSite#divesite.noaaCurrentStationId),
-	io:fwrite("Tides: ~p~n", [Tides]),
-	io:fwrite("Currents: ~p~n", [Currents]),
+
 	[#divesolution{siteId=DiveSiteId, time={{2014, 11, 17}, {00, 00, 00}}, length=30}].
