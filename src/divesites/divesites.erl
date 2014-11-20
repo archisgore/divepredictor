@@ -23,11 +23,14 @@
 
 -module(divesites).
 -export([list/0, site_by_id/1]).
--include("include/divesite.hrl").
+-include("include/divepredictor.hrl").
 
 list() -> [cove2:site_info(), keystone:site_info()].
 
 site_by_id(SiteId) ->
-	[First | _] = [Site || Site <- list(), Site#divesite.id == SiteId],
-	First.
+	case [Site || Site <- list(), Site#divesite.id == SiteId] of
+		[] -> io:fwrite("Undefined site ~s~n", [SiteId]),
+			undefined;
+		[First | _] -> First
+	end.
 

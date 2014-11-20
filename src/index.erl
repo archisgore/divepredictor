@@ -86,7 +86,7 @@ selectedDiveSite() ->
 selectedStartDate() -> 
 	case wf:qs(<<"startDate">>) of
 		undefined -> 
-			toDateString(date());
+			divepredictorformatting:date_to_string(date());
 		E ->
 			E
 	end.
@@ -94,26 +94,10 @@ selectedStartDate() ->
 selectedNumberOfSolutions() ->
 	case wf:q(<<"numberOfSolutions">>) of
 		undefined -> 
-			"10";
+			"1";
 		E ->
-			E
+			binary_to_list(E)
 	end.
-
-toDateTimeString(DateTime) ->
-	{Date, Time} = DateTime,
-	toDateString(Date) ++ " " ++ toTimeString(Time).
-
-toDateString(Date) -> 
-	{Year, Month, Day} = Date,
-	divepredictorformatting:integer_to_string_of_length(Year, 4) ++ "-" ++ 
-		divepredictorformatting:integer_to_string_of_length(Month, 2) ++ "-" ++ 
-		divepredictorformatting:integer_to_string_of_length(Day, 2).
-
-toTimeString(Time) ->
-	{Hour, Minute, Second} = Time,
-	divepredictorformatting:integer_to_string_of_length(Hour, 2) ++ ":" ++ 
-		divepredictorformatting:integer_to_string_of_length(Minute, 2) ++ ":" ++ 
-		divepredictorformatting:integer_to_string_of_length(Second, 2).
 
 solutions_list_items(DiveSiteId, StartDate, SolutionCount) ->
 	[Year,Month,Day] = re:split(StartDate, "-"),
@@ -121,11 +105,11 @@ solutions_list_items(DiveSiteId, StartDate, SolutionCount) ->
 
 solution_to_text(Solution) ->
 	DiveSite = divesites:site_by_id(Solution#divesolution.siteId),
-	io_lib:format("~p divable at <b>~p</b> and suitable for <b>~p minutes</b>", [DiveSite#divesite.name, 
-			toDateTimeString(Solution#divesolution.time), Solution#divesolution.length]).
+	io_lib:format("~s divable at <b>~s</b> and suitable for <b>~p minutes</b> (Details: <i>~s</i>)", [DiveSite#divesite.name, 
+			divepredictorformatting:datetime_to_string(Solution#divesolution.time), Solution#divesolution.length, Solution#divesolution.description]).
 
 solutions(DiveSiteId, Year, Month, Day, SolutionCount) ->
-		 computer:solve(DiveSiteId, {binary_to_integer(Year), binary_to_integer(Month), binary_to_integer(Day)}, SolutionCount).
+		 computer:solve(DiveSiteId, {binary_to_integer(Year), binary_to_integer(Month), binary_to_integer(Day)}, list_to_integer(SolutionCount)).
 
 google_map(DiveSiteId) ->
 	DiveSite = divesites:site_by_id(DiveSiteId),

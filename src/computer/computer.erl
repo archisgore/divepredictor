@@ -27,17 +27,18 @@
 
 %% Upper bound search to 360 days from start
 solve(DiveSiteId, StartDate, SolutionCount) ->
-	solve(DiveSiteId, StartDate, SolutionCount, [], 360). 
+	bounded_solve(DiveSiteId, edate:shift(StartDate, -1, day), SolutionCount, [], 30).
 
 %% Stop when no more days left
-solve(_, _, _, PreviousSolutions, 0) -> PreviousSolutions;
+bounded_solve(_, _, _, PreviousSolutions, 0) -> PreviousSolutions;
 
-solve(DiveSiteId, StartDate, DesiredSolutionCount, PreviousSolutions, MaxDays) ->
+bounded_solve(DiveSiteId, StartDate, DesiredSolutionCount, PreviousSolutions, MaxDays) ->
 	DiveSite = divesites:site_by_id(DiveSiteId),
 	Tides = tidesandcurrents:get_tides_for_date(StartDate, DiveSite#divesite.noaaTideStationId),
 	Currents = tidesandcurrents:get_currents_for_date(StartDate, DiveSite#divesite.noaaCurrentStationId),
-	solutions_finder = DiveSite#divesite.find_solutions,
-	Solutions = [PreviousSolutions | [solutions_finder(Tides, Currents)]],
+	Solutions_finder = DiveSite#divesite.find_solutions,
+	Solutions = lists:flatten([PreviousSolutions | Solutions_finder(Tides, Currents)]),
 	if length(Solutions) >= DesiredSolutionCount ->	Solutions;
-		true -> solve(DiveSiteId, edate:shift(StartDate, 1, day), DesiredSolutionCount, Solutions, MaxDays - 1)
+		true -> io:fwrite("Current found ~p solutions of ~p requested. ~n", [length(Solutions), DesiredSolutionCount]),
+			bounded_solve(DiveSiteId, edate:shift(StartDate, 1, day), DesiredSolutionCount, Solutions, MaxDays - 1)
 	end.

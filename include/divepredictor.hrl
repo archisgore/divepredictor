@@ -39,7 +39,8 @@
 -record(divesolution, {
 		siteId,
 		time,
-		length
+		length,
+		description=""
 	}).
 
 -record(tide, {

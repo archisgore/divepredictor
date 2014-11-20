@@ -59,10 +59,12 @@ parse_time(TimeCol) ->
 	TimeText = string:strip(string:strip(binary_to_list(TimeTextRaw), both), both, $\n),
 	[_, Time, AMPM] = string:tokens(TimeText, " "),
 	[Hour, Minute] = string:tokens(Time, ":"),
-	{list_to_integer(Hour) + offset_for_24_hours(AMPM), list_to_integer(Minute), 0}.
+	{adjust_am_pm(list_to_integer(Hour), AMPM), list_to_integer(Minute), 0}.
 
-offset_for_24_hours("AM") -> 0;
-offset_for_24_hours("PM") -> 12.
+adjust_am_pm(12, "AM") -> 0;
+adjust_am_pm(E, "AM") -> E;
+adjust_am_pm(12, "PM") -> 12;
+adjust_am_pm(E, "PM") -> E + 12.
 
 parse_type(MagnitudeCol) ->
 	{_, _, [MagnitudeTextRaw]} = MagnitudeCol,

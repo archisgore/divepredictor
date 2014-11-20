@@ -22,7 +22,23 @@
 %%*******************************************************************************************************************/
 
 -module(divepredictorformatting).
--export([integer_to_string_of_length/2]).
+-export([integer_to_string_of_length/2, datetime_to_string/1, date_to_string/1, time_to_string/1]).
 
 integer_to_string_of_length(Integer, Length) ->
 	string:right(integer_to_list(Integer), Length, $0).
+
+datetime_to_string(DateTime) ->
+	{Date, Time} = DateTime,
+	date_to_string(Date) ++ " " ++ time_to_string(Time).
+
+date_to_string(Date) -> 
+	{Year, Month, Day} = Date,
+	divepredictorformatting:integer_to_string_of_length(Year, 4) ++ "-" ++ 
+		divepredictorformatting:integer_to_string_of_length(Month, 2) ++ "-" ++ 
+		divepredictorformatting:integer_to_string_of_length(Day, 2).
+
+time_to_string(Time) ->
+	{Hour, Minute, Second} = Time,
+	divepredictorformatting:integer_to_string_of_length(Hour, 2) ++ ":" ++ 
+		divepredictorformatting:integer_to_string_of_length(Minute, 2) ++ ":" ++ 
+		divepredictorformatting:integer_to_string_of_length(Second, 2).

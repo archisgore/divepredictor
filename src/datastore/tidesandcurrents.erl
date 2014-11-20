@@ -30,10 +30,10 @@
 %% Gen Server stuff
 %%=================================================================================================================================
 get_tides_for_date(Date, TideStationId) ->
-	gen_server:call(?MODULE, {tides, Date, TideStationId}, 2000).
+	gen_server:call(?MODULE, {tides, Date, TideStationId}, 10000).
 
 get_currents_for_date(Date, CurrentStationId) ->
-	gen_server:call(?MODULE, {currents, Date, CurrentStationId}, 2000).
+	gen_server:call(?MODULE, {currents, Date, CurrentStationId}, 10000).
 
 %%=================================================================================================================================
 %% Private functions to do processing

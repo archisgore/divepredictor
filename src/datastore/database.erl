@@ -50,7 +50,7 @@ init([]) ->
 	{ok, Conn}.
 
 handle_call({fetch, Query}, _, Conn) ->
-	io:fwrite("Fetch Request ~s~n", [Query]),
+	%io:fwrite("Fetch Request ~s~n", [Query]),
 	{Size, ResList} = pgsql_connection:simple_query(Query, Conn),
 	{reply, ResList, Conn};
 
