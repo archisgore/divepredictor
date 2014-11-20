@@ -25,7 +25,7 @@
 -compile(export_all).
 -export([main/0]).
 -include_lib("n2o/include/wf.hrl").
--include("include/divesite.hrl").
+-include("include/divepredictor.hrl").
 
 main() -> 
 	[#dtl{app=divepredictor,

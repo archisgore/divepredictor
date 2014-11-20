@@ -22,7 +22,7 @@
 %%*******************************************************************************************************************/
 
 -module(computer).
--include_lib("include/divesite.hrl").
+-include_lib("include/divepredictor.hrl").
 -export([solve/3]).
 
 %% Upper bound search to 360 days from start
@@ -36,5 +36,8 @@ solve(DiveSiteId, StartDate, DesiredSolutionCount, PreviousSolutions, MaxDays) -
 	DiveSite = divesites:site_by_id(DiveSiteId),
 	Tides = tidesandcurrents:get_tides_for_date(StartDate, DiveSite#divesite.noaaTideStationId),
 	Currents = tidesandcurrents:get_currents_for_date(StartDate, DiveSite#divesite.noaaCurrentStationId),
-
-	[#divesolution{siteId=DiveSiteId, time={{2014, 11, 17}, {00, 00, 00}}, length=30}].
+	solutions_finder = DiveSite#divesite.find_solutions,
+	Solutions = [PreviousSolutions | [solutions_finder(Tides, Currents)]],
+	if length(Solutions) >= DesiredSolutionCount ->	Solutions;
+		true -> solve(DiveSiteId, edate:shift(StartDate, 1, day), DesiredSolutionCount, Solutions, MaxDays - 1)
+	end.

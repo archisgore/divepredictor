@@ -20,7 +20,7 @@
 
 -module(tidesandcurrents).
 -behavior(gen_server).
--include_lib ("include/divesite.hrl").
+-include_lib ("include/divepredictor.hrl").
 -export([start_link/0, init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
 -export([get_tides_for_date/2, get_currents_for_date/2]).
 
@@ -42,16 +42,22 @@ handle_call({tides, Date, TideStationId}, _From, State) ->
 		[] -> 
 			Tides = fetch_from_url(Date, TideStationId, fun tides:url_formatter/2, fun tides:response_parser/2),
 			ok = put_into_database(tides, Tides),
-			{reply, Tides, State};
-		E -> {reply, E, State} end;
+			{reply, to_tides_records(Tides), State};
+		E -> {reply, to_tides_records(E), State} end;
 
 handle_call({currents, Date, CurrentStationId}, _From, State) ->
 	case fetch_from_database(currents, Date, CurrentStationId) of
 		[] -> 
 			Currents = fetch_from_url(Date, CurrentStationId, fun currents:url_formatter/2, fun currents:response_parser/2),
 			ok = put_into_database(currents, Currents),
-			{reply, Currents, State};
-		E -> {reply, E, State} end.
+			{reply, to_currents_records(Currents), State};
+		E -> {reply, to_currents_records(E), State} end.
+
+to_currents_records(Currents) ->
+	[#current{stationId=StationId, dateTime={Date, Time}, type=Type, magnitude=Magnitude} ||  [StationId, Date, Time, Type, Magnitude] <- Currents].
+
+to_tides_records(Tides) ->
+	[#tide{stationId=StationId, dateTime={Date, Time}, type=Type, magnitude=Magnitude} ||  [StationId, Date, Time, Type, Magnitude] <- Tides].
 
 put_into_database(Table, Entries) -> 
 	ok = database:store(io_lib:format("INSERT INTO ~s VALUES ($1, $2, $3, $4, $5);", [Table]), to_database_entries(Entries)).
