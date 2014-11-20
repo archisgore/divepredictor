@@ -38,7 +38,7 @@ site_info() ->
 
 find_solutions(_, Currents) ->
 	io:fwrite("Solutions Finder for Deception Pass called.~n"),
-	[#divesolution{siteId="deceptionpass",time=Slack#current.dateTime, length=20, 
+	[#divesolution{siteId="deceptionpass",time=Slack#current.dateTime, length=-1, 
 		description=io_lib:format("~p Exchange across ~p minutes: Slack between ~s(~p)@~s - ~s(~p)@~s", 
 				[abs(Before#current.magnitude) + abs(After#current.magnitude),
 				((calendar:datetime_to_gregorian_seconds(After#current.dateTime) - calendar:datetime_to_gregorian_seconds(Before#current.dateTime)) / 60),
