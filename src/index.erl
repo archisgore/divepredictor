@@ -76,11 +76,10 @@ selectable_divesites() ->
 selectedDiveSite() ->
 	case wf:qs(<<"diveSite">>) of
 		undefined -> 
-			[First, _] = divesites:list(),
+			[First| _] = divesites:list(),
 			First#divesite.id;
 		E ->
-			F = binary_to_list(E),
-			F
+			binary_to_list(E)
 	end.
 
 selectedStartDate() -> 
