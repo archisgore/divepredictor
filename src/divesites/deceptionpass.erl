@@ -21,24 +21,24 @@
 %%******************************************************************************************************************
 %%*******************************************************************************************************************/
 
--module(keystone).
+-module(deceptionpass).
 -export([site_info/0]).
 -include("include/divepredictor.hrl").
 
 
 site_info() -> 
 	#divesite{
-		id="keystone", 
-		name="Keystone Jetty",
-		noaaTideStationId="9447905",
-		noaaCurrentStationId="PCT1491",
-		location=#divelocation{address="1390 Washington 20, Oak Harbor, WA 98277"},
+		id="deceptionpass", 
+		name="Deception Pass",
+		noaaTideStationId="9447110",
+		noaaCurrentStationId="PCT1956",
+		location=#divelocation{address="North Beach, Deception Pass State Park, Ault Field, WA"},
 		find_solutions=fun find_solutions/2
 	}.
 
 find_solutions(_, Currents) ->
-	io:fwrite("Solutions Finder for Keystone called.~n"),
-	[#divesolution{siteId="keystone",time=Slack#current.dateTime, length=-1, 
+	io:fwrite("Solutions Finder for Deception Pass called.~n"),
+	[#divesolution{siteId="deceptionpass",time=Slack#current.dateTime, length=20, 
 		description=io_lib:format("~p Exchange across ~p minutes: Slack between ~s(~p)@~s - ~s(~p)@~s", 
 				[abs(Before#current.magnitude) + abs(After#current.magnitude),
 				((calendar:datetime_to_gregorian_seconds(After#current.dateTime) - calendar:datetime_to_gregorian_seconds(Before#current.dateTime)) / 60),
@@ -59,8 +59,8 @@ get_safe_slacks(First, Second, [Third | Rest]) ->
 
 
 get_possible_solution(First,Second,Third) -> 
-	case Second#current.type of
-		"slack" -> 
+	case [First#current.type, Second#current.type] of
+		["floord", "slack"] -> 
 			%io:fwrite("Asked to test ~p < ~p < ~p and more~n", [First, Second, Third]),
 			case is_safe(First, Third) of
 				true -> [{First, Second, Third}];
@@ -68,8 +68,12 @@ get_possible_solution(First,Second,Third) ->
 		_ -> [] end.
 
 is_safe(First, Third) ->
-	Exchange = abs(First#current.magnitude) + abs(Third#current.magnitude),
+	Flood = abs(First#current.magnitude),
+	Ebb = abs(Third#current.magnitude),
+	Exchange = Flood + Ebb,
 	Time = (calendar:datetime_to_gregorian_seconds(Third#current.dateTime) - calendar:datetime_to_gregorian_seconds(First#current.dateTime)) / 360.00,
 	%io:fwrite("Exchange between ~p(~p)-~p(~p) is ~p (Safe:~p)", [First#current.type, First#current.magnitude,
 	%		Third#current.type, Third#current.magnitude, Exchange, Exchange =< 5]),
-	(Exchange =< 6) and ((Exchange / Time) =< 0.55).
+	(Flood < 6) and (Ebb < 5.5) and (Exchange =< 12).
+
+

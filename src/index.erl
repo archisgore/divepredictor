@@ -105,8 +105,13 @@ solutions_list_items(DiveSiteId, StartDate, SolutionCount) ->
 
 solution_to_text(Solution) ->
 	DiveSite = divesites:site_by_id(Solution#divesolution.siteId),
-	io_lib:format("~s divable at <b>~s</b> and suitable for <b>~p minutes</b> (Details: <i>~s</i>)", [DiveSite#divesite.name, 
-			divepredictorformatting:datetime_to_string(Solution#divesolution.time), Solution#divesolution.length, Solution#divesolution.description]).
+	io_lib:format("~s divable at <b>~s</b> ~s (Details: <i>~s</i>)", [DiveSite#divesite.name, 
+			divepredictorformatting:datetime_to_string(Solution#divesolution.time), 
+			solution_suitability_length(Solution#divesolution.length), Solution#divesolution.description]).
+
+solution_suitability_length(-1) -> "";
+solution_suitability_length(Length) ->
+	io_lib:format("suitable for <b>~p minutes</b>", [Length]).
 
 solutions(DiveSiteId, Year, Month, Day, SolutionCount) ->
 		 computer:solve(DiveSiteId, {binary_to_integer(Year), binary_to_integer(Month), binary_to_integer(Day)}, list_to_integer(SolutionCount)).

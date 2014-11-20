@@ -25,7 +25,10 @@
 -export([list/0, site_by_id/1]).
 -include("include/divepredictor.hrl").
 
-list() -> [cove2:site_info(), keystone:site_info()].
+list() -> [
+	cove2:site_info(), 
+	keystone:site_info(),
+	deceptionpass:site_info()].
 
 site_by_id(SiteId) ->
 	case [Site || Site <- list(), Site#divesite.id == SiteId] of

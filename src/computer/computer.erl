@@ -27,7 +27,7 @@
 
 %% Upper bound search to 360 days from start
 solve(DiveSiteId, StartDate, SolutionCount) ->
-	bounded_solve(DiveSiteId, edate:shift(StartDate, -1, day), SolutionCount, [], 30).
+	bounded_solve(DiveSiteId, StartDate, SolutionCount, [], 30).
 
 %% Stop when no more days left
 bounded_solve(_, _, _, PreviousSolutions, 0) -> PreviousSolutions;
