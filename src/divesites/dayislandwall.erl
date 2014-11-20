@@ -38,7 +38,7 @@ site_info() ->
 
 find_solutions(_, Currents) ->
 	io:fwrite("Solutions Finder for Day Island Wall called.~n"),
-	[#divesolution{siteId="dayislandwall",time=edate:shift(Slack#current.dateTime, -60, minutes), length=-1, 
+	[#divesolution{siteId="dayislandwall",time=correct_time(Slack#current.dateTime), length=-1, 
 		description=io_lib:format("~p Exchange across ~p minutes: Slack at ~s between ~s(~p)@~s - ~s(~p)@~s", 
 				[abs(Before#current.magnitude) + abs(After#current.magnitude),
 				((calendar:datetime_to_gregorian_seconds(After#current.dateTime) - calendar:datetime_to_gregorian_seconds(Before#current.dateTime)) / 60),
@@ -47,6 +47,9 @@ find_solutions(_, Currents) ->
 				After#current.type, After#current.magnitude, divepredictorformatting:datetime_to_string(After#current.dateTime)])} 
 		||	{Before, Slack, After} <- get_safe_slacks(Currents)].
 
+
+correct_time(DateTime) ->
+	calender:gregorian_seconds_to_datetime(calendar:datetime_to_gregorian_seconds(DateTime) - 3600).
 
 get_safe_slacks([]) -> [];
 get_safe_slacks([First|Rest]) -> get_safe_slacks(First, Rest).
