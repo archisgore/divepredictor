@@ -35,7 +35,7 @@ form() -> [#form{body=[#table{class=["standardTable"],
 			header=[#tr{cells=[
 					#th{body="Dive site"},
 					#th{body="Start Date"},
-					#th{body="Maximum solutions"}
+					#th{body="Minimum solutions (upto 2 months from Start Date)"}
 				]}],
 
 			body=[#tr{cells=[
