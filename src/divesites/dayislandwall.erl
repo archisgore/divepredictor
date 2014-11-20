@@ -49,7 +49,7 @@ find_solutions(_, Currents) ->
 
 
 correct_time(DateTime) ->
-	calender:gregorian_seconds_to_datetime(calendar:datetime_to_gregorian_seconds(DateTime) - 3600).
+	calender:gregorian_seconds_to_datetime((calendar:datetime_to_gregorian_seconds(DateTime) - 3600)).
 
 get_safe_slacks([]) -> [];
 get_safe_slacks([First|Rest]) -> get_safe_slacks(First, Rest).
