@@ -60,7 +60,7 @@ get_safe_slacks(First, Second, [Third | Rest]) ->
 
 
 get_possible_solution(First,Second,Third) -> 
-	case [First#current.type, Second#current.type] of
+	case Second#current.type of
 		"slack" -> 
 			%io:fwrite("Asked to test ~p < ~p < ~p and more~n", [First, Second, Third]),
 			case is_safe(First, Third) of
