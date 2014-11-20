@@ -36,7 +36,7 @@ site_info() ->
 
 	}.
 
-find_solutions(Tides, Currents) ->
+find_solutions(_, Currents) ->
 	io:fwrite("Solutions Finder for Cove 2 called.~n"),
 	[#divesolution{siteId="cove2",time=Current#current.dateTime,length=-1, 
 		description=io_lib:format("~p (~p) - Cove 2 is always divable", [Current#current.type, Current#current.magnitude])} || 
