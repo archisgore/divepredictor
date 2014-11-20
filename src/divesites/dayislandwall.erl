@@ -42,7 +42,7 @@ find_solutions(_, Currents) ->
 		description=io_lib:format("~p Exchange across ~p minutes: Slack at ~s between ~s(~p)@~s - ~s(~p)@~s", 
 				[abs(Before#current.magnitude) + abs(After#current.magnitude),
 				((calendar:datetime_to_gregorian_seconds(After#current.dateTime) - calendar:datetime_to_gregorian_seconds(Before#current.dateTime)) / 60),
-				divepredictorformatting:datetime_to_string(Before#current.dateTime), 
+				divepredictorformatting:datetime_to_string(Slack#current.dateTime), 
 				Before#current.type, Before#current.magnitude, divepredictorformatting:datetime_to_string(Before#current.dateTime),
 				After#current.type, After#current.magnitude, divepredictorformatting:datetime_to_string(After#current.dateTime)])} 
 		||	{Before, Slack, After} <- get_safe_slacks(Currents)].
