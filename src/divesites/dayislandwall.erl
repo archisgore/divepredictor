@@ -60,8 +60,8 @@ get_safe_slacks(First, Second, [Third | Rest]) ->
 
 
 get_possible_solution(First,Second,Third) -> 
-	case [First#current.type, Second#current.type] of
-		["flood", "slack"] -> 
+	case Second#current.type of
+		"slack" -> 
 			%io:fwrite("Asked to test ~p < ~p < ~p and more~n", [First, Second, Third]),
 			case is_safe(First, Third) of
 				true -> [{First, Second, Third}];
@@ -69,12 +69,12 @@ get_possible_solution(First,Second,Third) ->
 		_ -> [] end.
 
 is_safe(First, Third) ->
-	Flood = abs(First#current.magnitude),
-	Ebb = abs(Third#current.magnitude),
+	FirstMag = abs(First#current.magnitude),
+	SecondMag = abs(Third#current.magnitude),
 	%Exchange = Flood + Ebb,
 	%Time = (calendar:datetime_to_gregorian_seconds(Third#current.dateTime) - calendar:datetime_to_gregorian_seconds(First#current.dateTime)) / 360.00,
 	%io:fwrite("Exchange between ~p(~p)-~p(~p) is ~p (Safe:~p)", [First#current.type, First#current.magnitude,
 	%		Third#current.type, Third#current.magnitude, Exchange, Exchange =< 5]),
-	(Flood < 2) and (Ebb < 2) and ((Flood+Ebb) < 3.5).
+	(FirstMag < 2) and (SecondMag < 2) and ((FirstMag + SecondMag) < 3.5).
 
 
