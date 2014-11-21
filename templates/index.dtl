@@ -37,7 +37,7 @@
 		<hr>
 		<table style="border: 0px">
 		<tbody>
-		<tr><td>{{form}}</td><td><!-- Ads help me pay for hosting -->{{ads}}</td></tr>
+		<tr><td style="border: 0px">{{form}}</td><td style="border: 0px"><!-- Ads help me pay for hosting -->{{ads}}</td></tr>
 		</tbody>
 		</table>
 		<br/>
