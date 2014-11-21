@@ -29,7 +29,10 @@
 
 main() -> 
 	[#dtl{app=divepredictor,
-		bindings=[{form, form()}, {results, results()}, {analytics, os:getenv("GOOGLE_ANALYTICS")}]}].
+		bindings=[{form, form()}, 
+			{results, results()}, 
+			{analytics, os:getenv("GOOGLE_ANALYTICS")}, 
+			{ads, os:getenv("GOOGLE_ADS")]}].
 
 form() -> [#form{body=[#table{class=["standardTable"],
 			header=[#tr{cells=[
