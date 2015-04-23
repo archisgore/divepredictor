@@ -29,7 +29,8 @@ list() -> [
 	cove2:site_info(), 
 	keystone:site_info(),
 	deceptionpass:site_info(),
-	dayislandwall:site_info()].
+	dayislandwall:site_info(),
+	alkifishingreef:site_info()].
 
 site_by_id(SiteId) ->
 	case [Site || Site <- list(), Site#divesite.id == SiteId] of
