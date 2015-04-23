@@ -38,7 +38,7 @@ site_info() ->
 
 find_solutions(_, Currents) ->
 	io:fwrite("Solutions Finder for Alki Fishing Reef called.~n"),
-	[#divesolution{siteId="keystone",time=Slack#current.dateTime, length=-1, 
+	[#divesolution{siteId="alkifishingreef",time=Slack#current.dateTime, length=-1, 
 		description=io_lib:format("Slack between a ~p Exchange", 
 				[abs(Before#current.magnitude) + abs(After#current.magnitude)])} 
 		||	{Before, Slack, After} <- get_safe_slacks(Currents)].
@@ -65,5 +65,5 @@ get_possible_solution(First,Second,Third) ->
 		_ -> [] end.
 
 is_convenient(Second) ->
-	{_, {hour, _, _}} = Second#current.dateTime,
-	(hour >= 9) and (hour =< 17).
+	{_, {Hour, _, _}} = Second#current.dateTime,
+	(Hour >= 9) and (Hour =< 17).
