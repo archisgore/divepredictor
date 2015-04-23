@@ -66,4 +66,4 @@ get_possible_solution(First,Second,Third) ->
 
 is_convenient(Second) ->
 	{_, {Hour, _, _}} = Second#current.dateTime,
-	(Hour >= 8) and (Hour =< 16).
+	(Hour >= 9) and (Hour =< 16).
