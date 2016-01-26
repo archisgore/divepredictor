@@ -1,1 +1,1 @@
-web: erl -pa ebin deps/*/ebin -noshell -noinput -s divepredictor
+web:  ./_build/default/rel/divepredictor/bin/divepredictor -noshell -noinput
