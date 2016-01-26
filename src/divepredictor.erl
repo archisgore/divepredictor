@@ -37,6 +37,7 @@ start() ->
     ok = application:start(cowboy),
     ok = application:start(gproc),
     ok = application:start(erlydtl),
+    ok = application:start(erlydtl_runtime),
     ok = application:start(n2o),
     ok = application:start(inets),
     ok = application:start(ssl),
