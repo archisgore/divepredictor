@@ -37,6 +37,7 @@ start() ->
     ok = application:start(cowboy),
     ok = application:start(gproc),
     ok = application:start(edate),
+    ok = application:start(merl),
     ok = application:start(erlydtl),
     ok = application:start(erlydtl_runtime),
     ok = application:start(mad_repl),
