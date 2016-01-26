@@ -43,4 +43,4 @@ route_prefix(<<"/",P/binary>>) -> route(P);
 route_prefix(P) -> route(P).
 
 route(<<"index",P>>) -> index;
-route(_) -> not_found.
+route(_) -> index.
