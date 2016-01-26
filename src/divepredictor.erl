@@ -40,4 +40,4 @@ start() ->
     ok = application:start(n2o),
     ok = application:start(inets),
     ok = application:start(ssl),
-    ok = application:start(divepredictor).
+    ok = application:start(divepredictor_app).

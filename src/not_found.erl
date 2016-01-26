@@ -28,7 +28,7 @@
 
 main() -> 
 	[#dtl{
-		file="not_found", 
+		file="not_found",
 		ext="dtl",
 		bind_script=true,
 		app=divepredictor,
