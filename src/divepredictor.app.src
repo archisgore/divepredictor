@@ -26,7 +26,7 @@
   {description, "This application finds sites that are safe to dive at any given time."},
   {vsn, "1"},
   {registered, []},
-  {applications, [kernel, stdlib, ranch, cowboy, n2o, pgsql, erlydtl, ssl, mad, mochiweb, mochiweb_xpath, edate, merl]},
+  {applications, [kernel, stdlib, ranch, cowboy, n2o, pgsql, erlydtl, ssl, mad, mochiweb, mochiweb_xpath, edate]},
   {mod, { divepredictor_app, []}},
   {env, [{http_port, 80}]}
  ]}.
