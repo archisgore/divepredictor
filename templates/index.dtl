@@ -27,6 +27,11 @@
 <html>
 	<head>
 	  <title>Dive Site Finder</title>
+	  	<meta name="description" content="A tide/current/time finder for scuba diving sites around the PNW. This reads real-time NOAA data (as being currently measured), and uses updated tide/current predictions to suitable times to dive particular sites. For example, slack before ebb where floor was < 3 feet. This program is 100% open source and you can add new dive sites or new patterns into existing sites." />
+      	<meta name="keywords" content="scuba diving, NOAA, real-time data, dive sites, suitability, patterns, weather, predictions, tides, currents, erlang, open source, open source, public domain" />
+      	<link rel="canonical" href="http://divepredictor.archisgore.com" />
+
+
 	  <link rel="stylesheet" href="static/divepredictor.css" type="text/css"/>
 <meta name="google-site-verification" content="weY1q3q1WRrtnxBIOWGN9QKzFlaVK4tKQtufhiXIEUc" />
 	</head>
@@ -45,7 +50,8 @@
 		{{results}}
 		<script>{{script}}</script>
 		<hr/>
-		<span class="italic">Full Source code for this site is available here: <a href="https://github.com/archisgore/DivePredictor">https://github.com/archisgore/DivePredictor</a> under the GNU Affero GPLv3 Licence.</span>
+		<p>Maintained by <strong><a href="http://archisgore.com" title="Archis Gore" target="_blank">Archis Gore</a> </strong></p>
+		<p>Add/Edit the sites/patterns, or fork the source here:<a href="https://github.com/archisgore/divepredictor" title="Source Code">https://github.com/archisgore/divepredictor</a>.</p>
 		{{analytics}}
 	</body>
 </html>
