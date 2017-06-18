@@ -30,6 +30,7 @@ list() -> [
 	keystone:site_info(),
 	deceptionpass:site_info(),
 	dayislandwall:site_info(),
+	governer:site_info(),
 	alkifishingreef:site_info()].
 
 site_by_id(SiteId) ->
