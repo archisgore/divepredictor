@@ -23,7 +23,7 @@
 
 -module(governer).
 -export([site_info/0]).
--include("include/governer.hrl").
+-include("include/divepredictor.hrl").
 
 
 site_info() -> 
