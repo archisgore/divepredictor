@@ -83,13 +83,9 @@ start_link() ->
 
 
 connect() ->
-	Username = os:getenv("DB_USERNAME"),
-	Password = os:getenv("DB_PASSWORD"),
-	Host = os:getenv("DB_HOST"),
-	Database = os:getenv("DB_DATABASE"),
-	Port = list_to_integer(os:getenv("DB_PORT")),
-	io:fwrite("Database connection parameters: Username:~s, Password:~s, Host:~s, Database:~s, Port:~p~n", [Username, Password, Host, Database, Port]),
-	pgsql_connection:open(Host, Database, Username, Password, [{"port", Port}, {ssl, true}]).
+	PostgresURL = os:getenv("DATABASE_URL"),
+	io:fwrite("Database connection URL: ~s~n", [PostgresURL]),
+	pgsql_connection:open(PostgresURL).
 
 ensure_tables_exist(Conn) ->
 	ok = ensure_tides_table(Conn),
