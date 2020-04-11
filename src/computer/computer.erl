@@ -37,8 +37,18 @@ bounded_solve(DiveSiteId, StartDate, DesiredSolutionCount, PreviousSolutions, Ma
 	Tides = tidesandcurrents:get_tides_for_date(StartDate, DiveSite#divesite.noaaTideStationId),
 	Currents = tidesandcurrents:get_currents_for_date(StartDate, DiveSite#divesite.noaaCurrentStationId),
 	Solutions_finder = DiveSite#divesite.find_solutions,
-	Solutions = lists:flatten([PreviousSolutions | Solutions_finder(Tides, Currents)]),
-	if length(Solutions) >= DesiredSolutionCount ->	Solutions;
-		true -> io:fwrite("Current found ~p solutions of ~p requested. ~n", [length(Solutions), DesiredSolutionCount]),
-			bounded_solve(DiveSiteId, edate:shift(StartDate, 1, day), DesiredSolutionCount, Solutions, MaxDays - 1)
+	case [length(Tides), length(Currents)] of
+		[0, 0] ->
+			Message = io_lib:format("INTERNAL ERROR: Number of Tides from station ~p was ~p and Currents from station ~p was ~p. " ++ 
+				"Both need to be greater than zero to call the solver. Aborting the call. Please fix the NOAA website scraping " ++
+				"code or the stationIds to scrape from.", [DiveSite#divesite.noaaTideStationId, length(Tides), 
+				DiveSite#divesite.noaaCurrentStationId, length(Currents)]),
+			io:fwrite(Message),
+			[#divesolution{siteId=DiveSite#divesite.id,time=calendar:universal_time(),description=Message}]++PreviousSolutions;
+		true ->
+			Solutions = lists:flatten([PreviousSolutions | Solutions_finder(Tides, Currents)]),
+			if length(Solutions) >= DesiredSolutionCount ->	Solutions;
+				true -> io:fwrite("Current found ~p solutions of ~p requested. ~n", [length(Solutions), DesiredSolutionCount]),
+					bounded_solve(DiveSiteId, edate:shift(StartDate, 1, day), DesiredSolutionCount, Solutions, MaxDays - 1)
+			end
 	end.

@@ -85,7 +85,12 @@ start_link() ->
 connect() ->
 	PostgresURL = os:getenv("DATABASE_URL"),
 	io:fwrite("Database connection URL: ~s~n", [PostgresURL]),
-	pgsql_connection:open([{url, PostgresURL}, {ssl, true}]).
+	try
+		pgsql_connection:open([{url, PostgresURL}, {ssl, true}])
+	catch ssl_refused ->
+		io:fwrite("Connection failed because database refused SSL connection. Trying again without it."),
+		pgsql_connection:open([{url, PostgresURL}])
+	end.
 
 ensure_tables_exist(Conn) ->
 	ok = ensure_tides_table(Conn),
