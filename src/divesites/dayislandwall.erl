@@ -31,7 +31,7 @@ site_info() ->
 		id="dayislandwall", 
 		name="Day Island Wall",
 		noaaTideStationId="9447110",
-		noaaCurrentStationId="PCT1786",
+		noaaCurrentStationId="PUG1528",
 		location=#divelocation{address="W Day Island Boulevard West and E Day Island Blvd W, Tacoma, Pierce, Washington 98466, United States"},
 		find_solutions=fun find_solutions/2
 	}.

@@ -30,7 +30,7 @@ site_info() ->
 		id="alkifishingreef", 
 		name="Alki Fishing Reef",
 		noaaTideStationId="9447130",
-		noaaCurrentStationId="PCT1681",
+		noaaCurrentStationId="PUG1516",
 		location=#divelocation{address="4503 Beach Dr SW Seattle, WA  98116 United States"},
 		find_solutions=fun find_solutions/2
 

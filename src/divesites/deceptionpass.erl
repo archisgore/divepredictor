@@ -31,7 +31,7 @@ site_info() ->
 		id="deceptionpass", 
 		name="Deception Pass",
 		noaaTideStationId="9447110",
-		noaaCurrentStationId="PCT1956",
+		noaaCurrentStationId="PUG1701",
 		location=#divelocation{address="North Beach, Deception Pass State Park, Ault Field, WA"},
 		find_solutions=fun find_solutions/2
 	}.
