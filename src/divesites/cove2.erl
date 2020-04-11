@@ -30,7 +30,7 @@ site_info() ->
 		id="cove2", 
 		name="Alki Seacrest Cove 2",
 		noaaTideStationId="9447110",
-		noaaCurrentStationId="PCT1681",
+		noaaCurrentStationId="PUG1507",
 		location=#divelocation{address="1660 Harbor Ave SW Seattle, WA 98126"},
 		find_solutions=fun find_solutions/2
 

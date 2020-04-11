@@ -45,7 +45,7 @@ bounded_solve(DiveSiteId, StartDate, DesiredSolutionCount, PreviousSolutions, Ma
 				DiveSite#divesite.noaaCurrentStationId, length(Currents)]),
 			io:fwrite(Message),
 			[#divesolution{siteId=DiveSite#divesite.id,time=calendar:universal_time(),description=Message}]++PreviousSolutions;
-		true ->
+		_ ->
 			Solutions = lists:flatten([PreviousSolutions | Solutions_finder(Tides, Currents)]),
 			if length(Solutions) >= DesiredSolutionCount ->	Solutions;
 				true -> io:fwrite("Current found ~p solutions of ~p requested. ~n", [length(Solutions), DesiredSolutionCount]),

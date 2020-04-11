@@ -73,7 +73,7 @@ results() ->
 			]}]}] end.
 
 selectable_divesites() ->
-	[#option{label=Site#divesite.name, value=Site#divesite.id, selected=(selectedDiveSite() == Site#divesite.id)} || Site <- divesites:list()].
+	[#option{body=Site#divesite.name, value=Site#divesite.id, selected=(selectedDiveSite() == Site#divesite.id)} || Site <- divesites:list()].
 
 
 selectedDiveSite() ->

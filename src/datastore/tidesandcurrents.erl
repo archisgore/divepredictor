@@ -42,7 +42,7 @@ get_currents_for_date(Date, CurrentStationId) ->
 handle_call({tides, Date, TideStationId}, _From, State) ->
 	case fetch_from_database(tides, Date, TideStationId) of
 		[] -> 
-			Tides = fetch_from_url(Date, TideStationId, fun tides:url_formatter/2, fun tides:response_parser/2),
+			Tides = fetch_from_url(Date, TideStationId, fun tide_url_formatter/2, fun tide_response_parser/2),
 			ok = put_into_database(tides, Tides),
 			{reply, to_tides_records(Tides), State};
 		E -> {reply, to_tides_records(E), State} end;
@@ -50,7 +50,7 @@ handle_call({tides, Date, TideStationId}, _From, State) ->
 handle_call({currents, Date, CurrentStationId}, _From, State) ->
 	case fetch_from_database(currents, Date, CurrentStationId) of
 		[] -> 
-			Currents = fetch_from_url(Date, CurrentStationId, fun currents:url_formatter/2, fun currents:response_parser/2),
+			Currents = fetch_from_url(Date, CurrentStationId, fun current_url_formatter/2, fun current_response_parser/2),
 			ok = put_into_database(currents, Currents),
 			{reply, to_currents_records(Currents), State};
 		E -> {reply, to_currents_records(E), State} end.
@@ -98,6 +98,86 @@ from_database_entries(Entries) ->
 	[[binary_to_list(StationId), Date, Time, binary_to_list(Type), Magnitude] || 
 		{StationId, Date, Time, Type, Magnitude} <- Entries].
 
+
+
+%%==============================================================================
+%% Currents Functions
+%%==============================================================================
+current_url_formatter(Date, StationId) ->
+	{Year, Month, Day} = Date,
+	"http://tidesandcurrents.noaa.gov/api/datagetter?format=json" ++
+		"&application=divepredictor" ++ 
+		"&time_zone=gmt" ++
+		"&range=24" ++
+		"&product=currents_predictions" ++
+		"&interval=MAX_SLACK" ++
+		"&units=english" ++
+		"&begin_date=" ++ divepredictorformatting:integer_to_string_of_length(Year, 4) ++ divepredictorformatting:integer_to_string_of_length(Month, 2) ++ divepredictorformatting:integer_to_string_of_length(Day, 2) ++
+		"&station=" ++ StationId.
+
+current_response_parser(Response, StationId) -> 
+	Data = jsone:decode(list_to_binary(Response)),
+	CP = maps:get(<<"current_predictions">>, Data),
+	Items = maps:get(<<"cp">>, CP),
+	[[StationId, get_date(<<"Time">>, Item), get_time(<<"Time">>, Item), get_current_type(Item), get_current_magnitude(Item)] ||
+		Item <- Items].
+
+get_current_type(Item) ->
+	Type = maps:get(<<"Type">>, Item),
+	binary_to_list(Type).
+
+get_current_magnitude(Item) ->
+	maps:get(<<"Velocity_Major">>, Item).
+
+
+%%==============================================================================
+%% Tides Functions
+%%==============================================================================
+tide_url_formatter(Date, StationId) ->
+	{Year, Month, Day} = Date,
+	"http://tidesandcurrents.noaa.gov/api/datagetter?format=json" ++
+		"&application=divepredictor" ++ 
+		"&time_zone=gmt" ++
+		"&range=24" ++
+		"&product=predictions" ++
+		"&interval=hilo" ++
+		"&units=english" ++
+		"&datum=MLLW" ++
+		"&begin_date=" ++ divepredictorformatting:integer_to_string_of_length(Year, 4) ++ divepredictorformatting:integer_to_string_of_length(Month, 2) ++ divepredictorformatting:integer_to_string_of_length(Day, 2) ++
+		"&station=" ++ StationId.
+
+tide_response_parser(Response, StationId) -> 
+	Data = jsone:decode(list_to_binary(Response)),
+	Items = maps:get(<<"predictions">>, Data),
+	[[StationId, get_date(<<"t">>, Item), get_time(<<"t">>, Item), get_tide_type(Item), get_tide_magnitude(Item)] ||
+		Item <- Items].
+
+get_tide_type(Item) ->
+	ShortType = maps:get(<<"type">>, Item),
+	case ShortType of
+		<<"H">> -> "HighTide";
+		<<"L">> -> "LowTide"
+	end.
+
+get_tide_magnitude(Item) ->
+	binary_to_float(maps:get(<<"v">>, Item)).
+
+%%==============================================================================
+%% Common Functions
+%%==============================================================================
+get_date(Key, Item) ->
+	DateTime = maps:get(Key, Item),
+	[Date, _] = string:split(binary_to_list(DateTime), " "),
+	[Year, Month, Day] = string:tokens(Date, "-"),
+	{list_to_integer(Year), list_to_integer(Month), list_to_integer(Day)}.
+
+
+get_time(Key, Item) ->
+	DateTime = maps:get(Key, Item),
+	[_, Time] = string:split(binary_to_list(DateTime), " "),
+	[Hour, Minute] = string:tokens(Time, ":"),
+	{list_to_integer(Hour), list_to_integer(Minute), 0}.
+
 %%==============================================================================
 %% Server Functions
 %%==============================================================================
@@ -123,3 +203,4 @@ code_change(_, _, _) -> ok.
 
 
 start_link() -> gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
+
