@@ -31,7 +31,10 @@ start_link() -> supervisor:start_link({local, ?MODULE}, ?MODULE, []).
 
 init([]) ->
     case cowboy:start_http(http, 100, [{port, wf:config(n2o,port,port())}],
-                                    [{env, [{dispatch, dispatch_rules()}]}]) of
+            [
+                {env, [{dispatch, dispatch_rules()}]},
+                {onrequest, fun ?MODULE:https_redirection_hook/1}
+            ]) of
         {ok, _} -> ok;
         {error,{{_,{_,_,{X,_}}},_}} -> io:format("Can't start Web Server: ~p\r\n",[X]), halt(abort,[]);
         X -> io:format("Unknown Error: ~p\r\n",[X]), halt(abort,[]) end,
@@ -52,7 +55,7 @@ dispatch_rules() ->
             {"/rest/:resource/:id", rest_cowboy, []},
             {"/ws/[...]", bullet_handler, [{handler, n2o_bullet}]},
             {'_', n2o_cowboy, []}
-    ]}]).   
+    ]}]).
 
 port() ->
     case os:getenv("PORT") of
@@ -61,4 +64,19 @@ port() ->
             Port;
         Other ->
             list_to_integer(Other)
+    end.
+
+https_redirection_hook(Req) ->
+    {FwdProto, Req2} = cowboy_req:header(<<"x-forwarded-proto">>, Req),
+    case FwdProto of
+        <<"https">> -> Req2;
+        _ -> io:fwrite("NOT HTTPS: ~p~n", [FwdProto]),
+            {OrigUrl, Req3} = cowboy_req:url(Req),
+            io:fwrite("OrigUrl: ~p~n", [OrigUrl]),
+            TargetUrl = binary:replace(OrigUrl, <<"http://">>, <<"https://">>),
+            io:fwrite("TargetUrl: ~p~n", [TargetUrl]),
+            Req4 = cowboy_req:reply(301, [
+                {<<"location">>, TargetUrl}
+            ], Req3),
+            Req4
     end.
