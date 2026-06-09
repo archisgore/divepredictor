@@ -111,6 +111,13 @@
           <span class="text-sm text-slate-500">{{ results|length }} slack window{{ "" if results|length == 1 else "s" }}</span>
         </div>
 
+        {% if error %}
+        <div class="mb-4 rounded-xl border border-rose-300 bg-rose-50 p-4 text-sm text-rose-900">
+          <div class="font-semibold mb-1">Couldn't complete the search</div>
+          <div class="text-rose-800/90">{{ error }}</div>
+        </div>
+        {% endif %}
+
         {% if results %}
         <ul class="space-y-3">
           {% for r in results %}
@@ -160,13 +167,25 @@
           </div>
         </div>
 
+        {% if selected_site.notes %}
+        <div class="bg-brine-50 border border-brine-200 rounded-xl p-4 text-sm text-brine-900">
+          <div class="flex items-center gap-1.5 font-medium mb-1">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
+              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0Zm-7-4a1 1 0 11-2 0 1 1 0 012 0ZM9 9a.75.75 0 000 1.5h.253a.25.25 0 01.244.304l-.459 2.066A1.75 1.75 0 0010.747 15H11a.75.75 0 000-1.5h-.253a.25.25 0 01-.244-.304l.459-2.066A1.75 1.75 0 009.253 9H9Z" clip-rule="evenodd" />
+            </svg>
+            About this site
+          </div>
+          <p class="text-brine-800/90 leading-snug">{{ selected_site.notes }}</p>
+        </div>
+        {% endif %}
+
         <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 text-sm">
           <div class="font-medium text-slate-900 mb-2">NOAA stations</div>
           <dl class="space-y-1.5 text-slate-600">
             <div class="flex justify-between gap-3">
               <dt class="text-slate-500">Tide</dt>
               <dd>
-                <a href="https://tidesandcurrents.noaa.gov/stationhome.html?id={{ selected_site.tide_station_id }}"
+                <a href="{{ tide_station_url }}"
                    target="_blank" rel="noopener"
                    title="Open NOAA station page for {{ selected_site.tide_station_id }}"
                    class="inline-flex items-center gap-1 font-mono tabular-nums text-brine-700 hover:text-brine-900 hover:underline">
@@ -181,9 +200,9 @@
             <div class="flex justify-between gap-3">
               <dt class="text-slate-500">Current</dt>
               <dd>
-                <a href="https://tidesandcurrents.noaa.gov/noaacurrents/predictions.html?id={{ selected_site.current_station_id }}"
+                <a href="{{ current_station_url }}"
                    target="_blank" rel="noopener"
-                   title="Open NOAA current predictions for {{ selected_site.current_station_id }}"
+                   title="Open NOAA currents predictions for {{ selected_site.current_station_id }}"
                    class="inline-flex items-center gap-1 font-mono tabular-nums text-brine-700 hover:text-brine-900 hover:underline">
                   {{ selected_site.current_station_id }}
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-3.5 h-3.5 opacity-70">

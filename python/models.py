@@ -40,3 +40,6 @@ class DiveSite:
     tide_station_id: str
     current_station_id: str
     location: DiveLocation = field(default_factory=DiveLocation)
+    # Human notes explaining the site's diving technique / why the rule is shaped
+    # the way it is. Surfaced in the UI sidebar; empty string means no notes.
+    notes: str = ""

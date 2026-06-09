@@ -4,7 +4,7 @@ import os
 from contextlib import asynccontextmanager
 from datetime import date, datetime, timedelta
 from pathlib import Path
-from urllib.parse import quote_plus
+from urllib.parse import quote, quote_plus
 
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
@@ -13,6 +13,7 @@ from fastapi.templating import Jinja2Templates
 
 import cache
 import computer
+import noaa
 import sites
 from models import DiveSite
 
@@ -24,6 +25,29 @@ REDIRECT_HOSTS = {
     for h in os.environ.get("REDIRECT_HOSTS", "").split(",")
     if h.strip()
 }
+
+# Bounds enforced server-side regardless of client form constraints.
+MAX_SOLUTIONS = 50
+DEFAULT_SOLUTIONS = 3
+DEFAULT_END_DELTA_DAYS = 60
+
+# Memoized bin lookup so the NOAA round-trip for each station happens at most
+# once per process. A None value means "we looked and couldn't determine it,
+# stop trying."
+_bin_cache: dict[str, str | None] = {}
+
+
+def _bin_for(station_id: str) -> str | None:
+    if station_id not in _bin_cache:
+        _bin_cache[station_id] = noaa.current_station_bin(station_id)
+    return _bin_cache[station_id]
+
+
+def _current_station_url(station_id: str) -> str:
+    bin_ = _bin_for(station_id)
+    if bin_:
+        return f"https://tidesandcurrents.noaa.gov/noaacurrents/predictions.html?id={station_id}_{bin_}"
+    return f"https://tidesandcurrents.noaa.gov/stationhome.html?id={station_id}"
 
 
 @asynccontextmanager
@@ -41,7 +65,7 @@ templates = Jinja2Templates(directory=str(BASE / "templates"))
 async def canonical_host_redirect(request: Request, call_next):
     host = (request.headers.get("host") or "").split(":", 1)[0].lower()
     if CANONICAL_HOST and host in REDIRECT_HOSTS:
-        target = f"https://{CANONICAL_HOST}{request.url.path}"
+        target = f"https://{CANONICAL_HOST}{quote(request.url.path, safe='/')}"
         if request.url.query:
             target += f"?{request.url.query}"
         return RedirectResponse(target, status_code=301)
@@ -75,6 +99,16 @@ def _parse_date(s: str | None) -> date | None:
         return None
 
 
+def _clamp_count(n: int | None) -> int:
+    if n is None:
+        return DEFAULT_SOLUTIONS
+    if n < 1:
+        return 1
+    if n > MAX_SOLUTIONS:
+        return MAX_SOLUTIONS
+    return n
+
+
 def _format_result(site: DiveSite, sol) -> dict:
     return {
         "site_name": site.name,
@@ -97,16 +131,21 @@ def index(
     all_sites = sites.list_sites()
     default_id = diveSite or all_sites[0].id
     start = _parse_date(startDate) or date.today()
-    end = _parse_date(endDate) or (start + timedelta(days=60))
-    count = numberOfSolutions or 3
+    end = _parse_date(endDate) or (start + timedelta(days=DEFAULT_END_DELTA_DAYS))
+    if end < start:
+        end = start
+    count = _clamp_count(numberOfSolutions)
     show_results = submitted or any([diveSite, startDate, endDate, numberOfSolutions])
 
     site = sites.site_by_id(default_id) or all_sites[0]
     results: list[dict] = []
+    error: str | None = None
     if show_results:
-        for s in computer.solve(site.id, start, count, end_date=end):
+        outcome = computer.solve(site.id, start, count, end_date=end)
+        for s in outcome.solutions:
             site_for_row = sites.site_by_id(s.site_id) or site
             results.append(_format_result(site_for_row, s))
+        error = outcome.error
 
     return templates.TemplateResponse(
         "index.html",
@@ -118,8 +157,11 @@ def index(
             "end_date": end.isoformat(),
             "number_of_solutions": count,
             "results": results,
+            "error": error,
             "show_results": show_results,
             "map_uri": _google_map_uri(site),
             "maps_key_present": bool(GOOGLE_MAPS_KEY),
+            "current_station_url": _current_station_url(site.current_station_id),
+            "tide_station_url": f"https://tidesandcurrents.noaa.gov/stationhome.html?id={site.tide_station_id}",
         },
     )
