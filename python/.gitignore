@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+*.sqlite3
+*.sqlite3-journal
+.env
+.env.*
+server.log
+.pytest_cache/
