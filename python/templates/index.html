@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DivePredictor — slack windows for PNW dive sites</title>
+  <meta name="description" content="Find slack-current windows for Pacific Northwest scuba dive sites. Uses live NOAA tide and current predictions." />
+  <meta name="keywords" content="scuba diving, NOAA, dive sites, tides, currents, slack, predictions, PNW, Puget Sound" />
+  <link rel="canonical" href="https://divepredictor.archisgore.com" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brine: { 50:'#f0f7fb', 100:'#dbecf4', 200:'#b6d9e9', 300:'#82bfd8', 400:'#4a9fc2', 500:'#2982a8', 600:'#1d678c', 700:'#185373', 800:'#15455e', 900:'#123a50' },
+            kelp:  { 50:'#f3f8f4', 100:'#e0ecdf', 200:'#bfd9c1', 300:'#94bf98', 400:'#67a06d', 500:'#48854f', 600:'#356b3d', 700:'#2a5530', 800:'#244528', 900:'#1c3621' },
+          },
+          fontFamily: {
+            sans: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'sans-serif'],
+          },
+        },
+      },
+    }
+  </script>
+  <link rel="preconnect" href="https://rsms.me/" />
+  <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
+  <style>
+    body { font-family: 'Inter', ui-sans-serif, system-ui, sans-serif; }
+    .wave-bg {
+      background:
+        radial-gradient(1200px 400px at 10% -10%, rgba(74,159,194,0.35), transparent 60%),
+        radial-gradient(900px 400px at 90% -20%, rgba(72,133,79,0.25), transparent 60%),
+        linear-gradient(180deg, #0d3a52 0%, #1d678c 60%, #2982a8 100%);
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased">
+
+  <header class="wave-bg text-white">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
+      <div class="flex items-center gap-3 mb-3">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-8 h-8 text-brine-200">
+          <path d="M2 17c2 0 2 1.5 4 1.5S8 17 10 17s2 1.5 4 1.5S16 17 18 17s2 1.5 4 1.5V21c-2 0-2-1.5-4-1.5S16 21 14 21s-2-1.5-4-1.5S8 21 6 21s-2-1.5-4-1.5V17ZM12 3a4 4 0 0 0-4 4c0 2 2 4 4 7 2-3 4-5 4-7a4 4 0 0 0-4-4Zm0 3a1 1 0 1 1 0 2 1 1 0 0 1 0-2Z"/>
+        </svg>
+        <span class="text-sm uppercase tracking-widest text-brine-100/90">DivePredictor</span>
+      </div>
+      <h1 class="text-3xl sm:text-5xl font-bold tracking-tight">Find your slack window.</h1>
+      <p class="mt-3 text-brine-50/90 max-w-2xl text-base sm:text-lg">
+        Live NOAA tide &amp; current predictions, per-site rules, slack windows you can actually dive. For Pacific Northwest sites.
+      </p>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-4 sm:px-6 -mt-8 sm:-mt-10 pb-16">
+
+    <!-- Disclaimer -->
+    <div class="rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900 mb-6 shadow-sm">
+      <strong class="font-semibold">Heads up:</strong> Academic/experimental only. <span class="italic">Do not</span> use this for real dive planning &mdash; rules are conservative-ish but the data and code can be wrong.
+    </div>
+
+    <!-- Form Card -->
+    <form method="get" action="/" class="bg-white rounded-2xl shadow-lg border border-slate-200 p-5 sm:p-7">
+      <input type="hidden" name="submitted" value="1" />
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
+        <div class="md:col-span-4">
+          <label for="diveSite" class="block text-sm font-medium text-slate-700 mb-1.5">Dive site</label>
+          <select id="diveSite" name="diveSite" required
+                  class="w-full rounded-lg border-slate-300 bg-white px-3 py-2.5 text-slate-900 shadow-sm focus:border-brine-500 focus:ring-2 focus:ring-brine-200 outline-none">
+            {% for s in sites %}
+              <option value="{{ s.id }}" {% if s.id == selected_site.id %}selected{% endif %}>{{ s.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="md:col-span-2">
+          <label for="startDate" class="block text-sm font-medium text-slate-700 mb-1.5">Start date</label>
+          <input type="date" id="startDate" name="startDate" value="{{ start_date }}" required
+                 class="w-full rounded-lg border-slate-300 bg-white px-3 py-2.5 text-slate-900 shadow-sm focus:border-brine-500 focus:ring-2 focus:ring-brine-200 outline-none" />
+        </div>
+        <div class="md:col-span-2">
+          <label for="endDate" class="block text-sm font-medium text-slate-700 mb-1.5">End date</label>
+          <input type="date" id="endDate" name="endDate" value="{{ end_date }}" required
+                 class="w-full rounded-lg border-slate-300 bg-white px-3 py-2.5 text-slate-900 shadow-sm focus:border-brine-500 focus:ring-2 focus:ring-brine-200 outline-none" />
+        </div>
+        <div class="md:col-span-2">
+          <label for="numberOfSolutions" class="block text-sm font-medium text-slate-700 mb-1.5"># windows</label>
+          <input type="number" id="numberOfSolutions" name="numberOfSolutions" min="1" max="100" step="1" value="{{ number_of_solutions }}" required
+                 class="w-full rounded-lg border-slate-300 bg-white px-3 py-2.5 text-slate-900 shadow-sm focus:border-brine-500 focus:ring-2 focus:ring-brine-200 outline-none" />
+        </div>
+        <div class="md:col-span-2">
+          <button type="submit"
+                  class="w-full inline-flex justify-center items-center gap-2 rounded-lg bg-brine-600 hover:bg-brine-700 active:bg-brine-800 text-white font-medium px-4 py-2.5 shadow-sm transition">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
+              <path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11ZM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9Z" clip-rule="evenodd" />
+            </svg>
+            Search
+          </button>
+        </div>
+      </div>
+      <p class="mt-3 text-xs text-slate-500">Times are in the dive site's local timezone (Pacific). End date defaults to ~2 months out; 60 days is the hard cap.</p>
+    </form>
+
+    {% if show_results %}
+    <!-- Two-column results layout -->
+    <section class="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+      <!-- Results column -->
+      <div class="lg:col-span-2">
+        <div class="flex items-baseline justify-between mb-3">
+          <h2 class="text-xl font-semibold text-slate-900">{{ selected_site.name }}</h2>
+          <span class="text-sm text-slate-500">{{ results|length }} slack window{{ "" if results|length == 1 else "s" }}</span>
+        </div>
+
+        {% if results %}
+        <ul class="space-y-3">
+          {% for r in results %}
+            <li class="bg-white rounded-xl shadow-sm border border-slate-200 hover:border-brine-300 hover:shadow transition p-4 sm:p-5">
+              <div class="flex flex-wrap items-baseline justify-between gap-2">
+                <div>
+                  <div class="text-xs uppercase tracking-wider text-slate-500">{{ r.day }}</div>
+                  <div class="text-2xl font-semibold text-brine-700 tabular-nums">{{ r.time }}</div>
+                </div>
+                <span class="inline-flex items-center gap-1 rounded-full bg-kelp-100 text-kelp-700 px-2.5 py-0.5 text-xs font-medium">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-3.5 h-3.5">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16Zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5Z" clip-rule="evenodd" />
+                  </svg>
+                  divable
+                </span>
+              </div>
+              <details class="mt-3 group">
+                <summary class="cursor-pointer text-sm text-slate-500 hover:text-slate-700 select-none">Details</summary>
+                <p class="mt-2 text-sm text-slate-600 font-mono leading-snug break-words">{{ r.description }}</p>
+              </details>
+            </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <div class="bg-white rounded-xl border border-slate-200 p-6 text-slate-600 text-sm">
+          No slack windows found in the searched range. Try a different site, an earlier start date, or fewer windows.
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Sidebar: map + station info -->
+      <aside class="lg:col-span-1 space-y-4">
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+          {% if maps_key_present %}
+            <iframe class="w-full h-72 lg:h-80 block border-0"
+                    src="{{ map_uri }}"
+                    loading="lazy"
+                    referrerpolicy="no-referrer-when-downgrade"></iframe>
+          {% else %}
+            <div class="h-72 lg:h-80 flex items-center justify-center bg-slate-100 text-slate-500 text-sm text-center px-6">
+              Set <code class="px-1 py-0.5 rounded bg-white border border-slate-200 text-xs">GOOGLE_MAPS_KEY</code> to show the map.
+            </div>
+          {% endif %}
+          <div class="p-4 border-t border-slate-100">
+            <div class="text-sm font-medium text-slate-900">{{ selected_site.name }}</div>
+            <div class="text-xs text-slate-500 mt-0.5">{{ selected_site.location.address }}</div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 text-sm">
+          <div class="font-medium text-slate-900 mb-2">NOAA stations</div>
+          <dl class="space-y-1.5 text-slate-600">
+            <div class="flex justify-between gap-3">
+              <dt class="text-slate-500">Tide</dt>
+              <dd>
+                <a href="https://tidesandcurrents.noaa.gov/stationhome.html?id={{ selected_site.tide_station_id }}"
+                   target="_blank" rel="noopener"
+                   title="Open NOAA station page for {{ selected_site.tide_station_id }}"
+                   class="inline-flex items-center gap-1 font-mono tabular-nums text-brine-700 hover:text-brine-900 hover:underline">
+                  {{ selected_site.tide_station_id }}
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-3.5 h-3.5 opacity-70">
+                    <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z"/>
+                    <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z"/>
+                  </svg>
+                </a>
+              </dd>
+            </div>
+            <div class="flex justify-between gap-3">
+              <dt class="text-slate-500">Current</dt>
+              <dd>
+                <a href="https://tidesandcurrents.noaa.gov/noaacurrents/predictions.html?id={{ selected_site.current_station_id }}"
+                   target="_blank" rel="noopener"
+                   title="Open NOAA current predictions for {{ selected_site.current_station_id }}"
+                   class="inline-flex items-center gap-1 font-mono tabular-nums text-brine-700 hover:text-brine-900 hover:underline">
+                  {{ selected_site.current_station_id }}
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-3.5 h-3.5 opacity-70">
+                    <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z"/>
+                    <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z"/>
+                  </svg>
+                </a>
+              </dd>
+            </div>
+          </dl>
+        </div>
+      </aside>
+    </section>
+    {% endif %}
+
+  </main>
+
+  <footer class="border-t border-slate-200 bg-white">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-6 text-sm text-slate-500 flex flex-col sm:flex-row gap-2 sm:items-center sm:justify-between">
+      <p>Maintained by <a href="https://archisgore.com" class="text-brine-700 hover:underline" target="_blank" rel="noopener">Archis Gore</a>.</p>
+      <p>Source: <a href="https://github.com/archisgore/divepredictor" class="text-brine-700 hover:underline" target="_blank" rel="noopener">github.com/archisgore/divepredictor</a></p>
+    </div>
+  </footer>
+
+</body>
+</html>
