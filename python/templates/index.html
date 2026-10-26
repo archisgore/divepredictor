@@ -116,12 +116,9 @@
         {% if s.rules %}
         <ol class="divide-y divide-slate-100">
           {% for rule in s.rules %}
-          <li class="flex gap-3 px-5 sm:px-7 py-3">
+          <li class="flex gap-3 px-5 sm:px-7 py-2.5">
             <span class="mt-0.5 shrink-0 w-5 h-5 rounded-full bg-brine-100 text-brine-700 text-xs font-semibold flex items-center justify-center tabular-nums">{{ loop.index }}</span>
-            <div>
-              <p class="text-sm text-slate-800">{{ rule.text }}</p>
-              {% if rule.why %}<p class="mt-0.5 text-xs text-slate-500 leading-snug">{{ rule.why }}</p>{% endif %}
-            </div>
+            <p class="text-sm text-slate-800">{{ rule }}</p>
           </li>
           {% endfor %}
         </ol>
@@ -130,8 +127,7 @@
         {% endif %}
 
         <p class="px-5 sm:px-7 py-2.5 text-xs text-slate-500 bg-slate-50/70 border-t border-slate-100">
-          Exchange = the flood peak plus the ebb peak on either side of a slack, magnitudes added. Knots, from NOAA station
-          <span class="font-mono">{{ s.current_station_id }}</span>.
+          Exchange = flood peak + ebb peak either side of slack, magnitudes added. Currents from <span class="font-mono">{{ s.current_station_id }}</span>.
         </p>
       </div>
       {% endfor %}

@@ -1,6 +1,6 @@
 from datetime import timedelta
 
-from models import Current, DiveLocation, DiveSite, DiveSolution, Rule, Tide
+from models import Current, DiveLocation, DiveSite, DiveSolution, Tide
 from sites._common import fmt, safe_slack_triples
 
 # Day Island Wall sits in the side passage west of the Tacoma Narrows.
@@ -30,27 +30,11 @@ site = DiveSite(
         "slack itself."
     ),
     rules=(
-        Rule(
-            "Any slack qualifies — slack before ebb and slack before flood both count.",
-            "The wall is in a side passage, not the main channel, so the direction "
-            "of the following current matters less than its size.",
-        ),
-        Rule(
-            "Both surrounding peaks < 3.0 kt.",
-            "The Narrows station routinely predicts 4–5 kt. Anything near that is "
-            "unmanageable in the side passage too.",
-        ),
-        Rule(
-            "Combined exchange < 4.0 kt.",
-            "Tighter than 3.0 + 3.0 — in practice this is the binding constraint, "
-            "and it is what keeps the slack long enough to dive the wall end to end.",
-        ),
-        Rule(
-            "Listed times are shifted 1 hour earlier than the NOAA prediction.",
-            "A spatial correction, not a splash lead: slack at the wall runs about "
-            "an hour ahead of PUG1528 midstream in the Narrows. Splash at the "
-            "listed time.",
-        ),
+        "Any slack — before ebb or before flood.",
+        "Both surrounding peaks < 3.0 kt.",
+        "Combined exchange < 4.0 kt.",
+        "Listed times are 1 h earlier than the NOAA prediction — a spatial "
+        "correction for PUG1528, not a splash lead. Splash at the listed time.",
     ),
 )
 

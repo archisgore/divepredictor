@@ -34,15 +34,6 @@ class DiveSolution:
 
 
 @dataclass(frozen=True)
-class Rule:
-    """One line of a site's window-selection rule, as shown in the UI."""
-
-    text: str
-    # Optional "why" shown underneath in smaller type.
-    why: str = ""
-
-
-@dataclass(frozen=True)
 class DiveSite:
     id: str
     name: str
@@ -52,10 +43,9 @@ class DiveSite:
     # Human notes explaining the site's diving technique / why the rule is shaped
     # the way it is. Surfaced in the UI sidebar; empty string means no notes.
     notes: str = ""
-    # Plain-English statement of every condition find_solutions() tests, in the
-    # order it tests them. These must stay in lockstep with the site's _keep()
-    # predicate -- the UI shows them as the reason a window was picked.
-    rules: tuple[Rule, ...] = ()
+    # Every condition find_solutions() tests, in the order it tests them, one
+    # short line each. Must stay in lockstep with the site's _keep() predicate.
+    rules: tuple[str, ...] = ()
     # How long before the computed slack you should be in the water. The UI
     # subtracts this from the slack to show a splash time. Zero means "the
     # listed slack is the time to be in the water".

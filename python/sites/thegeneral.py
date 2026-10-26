@@ -1,6 +1,6 @@
 from datetime import timedelta
 
-from models import Current, DiveLocation, DiveSite, DiveSolution, Rule, Tide
+from models import Current, DiveLocation, DiveSite, DiveSolution, Tide
 from sites._common import fmt, safe_slack_triples
 
 # The General is deeper and further offshore than the Fishing Reef, so the
@@ -22,31 +22,16 @@ site = DiveSite(
         longitude=-122.392421,
     ),
     notes=(
-        "Deep boat-access wreck sitting in roughly 130–170 ft of water in East "
-        "Passage. The nearest NOAA current station is PUG1520 (\"Dolphin Point, "
-        "1.3 miles East of\"), about 1.5 miles away in the same channel. Because "
-        "the dive is deep and the wreck takes a few minutes to find, the splash "
-        "lead is an hour rather than the Fishing Reef's half hour."
+        "Boat-access wreck in roughly 130–170 ft of water in East Passage. "
+        "Currents come from PUG1520 (\"Dolphin Point, 1.3 miles East of\"), "
+        "about 1.5 miles away in the same channel."
     ),
     splash_offset=SPLASH_LEAD,
     rules=(
-        Rule(
-            "Slack before ebb — the peak before slack must be a flood.",
-            "Same reasoning as the Fishing Reef: the last of the flood carries you "
-            "out and down to the wreck, and the building ebb carries you back.",
-        ),
-        Rule(
-            f"Slack falls between {DAYLIGHT_START_HOUR:02d}:00 and "
-            f"{DAYLIGHT_END_HOUR:02d}:00 local time.",
-            "A 130–170 ft dive wants every bit of ambient light, and the boat ride "
-            "out and back should be in daylight too.",
-        ),
-        Rule(
-            "Splash 60 minutes before slack.",
-            "The listed time is the splash time; slack itself is an hour later. "
-            "The extra half hour over the Fishing Reef covers the longer descent "
-            "and the swim to the wreck.",
-        ),
+        "Slack before ebb — the peak before slack must be a flood, so the "
+        "current is at your back both ways.",
+        f"Slack between {DAYLIGHT_START_HOUR:02d}:00 and {DAYLIGHT_END_HOUR:02d}:00 local.",
+        "Splash 60 min before slack — the listed time is the splash time.",
     ),
 )
 
@@ -66,8 +51,7 @@ def find_solutions(_tides: list[Tide], currents: list[Current]) -> list[DiveSolu
             time=slack.dt,
             description=(
                 f"Slack at {fmt(slack.dt)} across a {exch:.2f} kt exchange: "
-                f"{b.type}({b.magnitude})@{fmt(b.dt)} → {a.type}({a.magnitude})@{fmt(a.dt)}. "
-                f"Flood before, ebb after — current at your back both ways."
+                f"{b.type}({b.magnitude})@{fmt(b.dt)} → {a.type}({a.magnitude})@{fmt(a.dt)}."
             ),
         ))
     return out
