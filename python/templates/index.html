@@ -101,6 +101,42 @@
       <p class="mt-3 text-xs text-slate-500">Times are in the dive site's local timezone (Pacific). End date defaults to ~2 months out; 60 days is the hard cap.</p>
     </form>
 
+    <!-- Per-site rules. One block per site; JS reveals the one matching the dropdown. -->
+    <section class="mt-6">
+      {% for s in sites %}
+      <div data-site-rules="{{ s.id }}" {% if s.id != selected_site.id %}hidden{% endif %}
+           class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="flex items-center gap-2 px-5 sm:px-7 py-3 border-b border-slate-100 bg-slate-50/70">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 text-brine-600">
+            <path fill-rule="evenodd" d="M4 2a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H4Zm2.5 4.5a.75.75 0 0 0 0 1.5h7a.75.75 0 0 0 0-1.5h-7Zm0 3a.75.75 0 0 0 0 1.5h7a.75.75 0 0 0 0-1.5h-7Zm0 3a.75.75 0 0 0 0 1.5h4a.75.75 0 0 0 0-1.5h-4Z" clip-rule="evenodd" />
+          </svg>
+          <h2 class="text-sm font-semibold text-slate-900">How windows are picked for {{ s.name }}</h2>
+        </div>
+
+        {% if s.rules %}
+        <ol class="divide-y divide-slate-100">
+          {% for rule in s.rules %}
+          <li class="flex gap-3 px-5 sm:px-7 py-3">
+            <span class="mt-0.5 shrink-0 w-5 h-5 rounded-full bg-brine-100 text-brine-700 text-xs font-semibold flex items-center justify-center tabular-nums">{{ loop.index }}</span>
+            <div>
+              <p class="text-sm text-slate-800">{{ rule.text }}</p>
+              {% if rule.why %}<p class="mt-0.5 text-xs text-slate-500 leading-snug">{{ rule.why }}</p>{% endif %}
+            </div>
+          </li>
+          {% endfor %}
+        </ol>
+        {% else %}
+        <p class="px-5 sm:px-7 py-3 text-sm text-slate-500">No rules documented for this site yet.</p>
+        {% endif %}
+
+        <p class="px-5 sm:px-7 py-2.5 text-xs text-slate-500 bg-slate-50/70 border-t border-slate-100">
+          Exchange = the flood peak plus the ebb peak on either side of a slack, magnitudes added. Knots, from NOAA station
+          <span class="font-mono">{{ s.current_station_id }}</span>.
+        </p>
+      </div>
+      {% endfor %}
+    </section>
+
     {% if show_results %}
     <!-- Two-column results layout -->
     <section class="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -127,6 +163,13 @@
                 <div>
                   <div class="text-xs uppercase tracking-wider text-slate-500">{{ r.day }}</div>
                   <div class="text-2xl font-semibold text-brine-700 tabular-nums">{{ r.time }}</div>
+                  {% if r.lead %}
+                    <div class="text-xs text-slate-500 mt-0.5">
+                      splash &middot; slack at <span class="tabular-nums font-medium text-slate-600">{{ r.slack_time }}</span>, {{ r.lead }} later
+                    </div>
+                  {% else %}
+                    <div class="text-xs text-slate-500 mt-0.5">splash at slack</div>
+                  {% endif %}
                 </div>
                 <span class="inline-flex items-center gap-1 rounded-full bg-kelp-100 text-kelp-700 px-2.5 py-0.5 text-xs font-medium">
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-3.5 h-3.5">
@@ -227,6 +270,21 @@
       <p>Source: <a href="https://github.com/archisgore/divepredictor" class="text-brine-700 hover:underline" target="_blank" rel="noopener">github.com/archisgore/divepredictor</a></p>
     </div>
   </footer>
+
+<script>
+  // Keep the visible rules block in sync with the dive-site dropdown, so the
+  // rules shown always describe the site you are about to search.
+  (function () {
+    var select = document.getElementById('diveSite');
+    if (!select) return;
+    var blocks = document.querySelectorAll('[data-site-rules]');
+    select.addEventListener('change', function () {
+      blocks.forEach(function (b) {
+        b.hidden = b.getAttribute('data-site-rules') !== select.value;
+      });
+    });
+  })();
+</script>
 
 </body>
 </html>

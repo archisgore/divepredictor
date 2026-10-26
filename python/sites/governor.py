@@ -1,4 +1,4 @@
-from models import Current, DiveLocation, DiveSite, DiveSolution, Tide
+from models import Current, DiveLocation, DiveSite, DiveSolution, Rule, Tide
 from sites._common import exchange_description, safe_slack_triples
 
 site = DiveSite(
@@ -7,6 +7,30 @@ site = DiveSite(
     tide_station_id="9447110",
     current_station_id="PCT1511",
     location=DiveLocation(address="Port Townsend, WA"),
+    rules=(
+        Rule(
+            "Slack before ebb — the peak before slack must be a flood.",
+            "Drop onto the wreck on the tail of the flood and leave on the ebb.",
+        ),
+        Rule(
+            "Flood peak before slack < 1.0 kt.",
+            "Far and away the strictest limits of any site here. The Governor is a "
+            "deep wreck off Point Wilson; a current you could swim against on a "
+            "shore dive is not one you want at depth with a decompression obligation.",
+        ),
+        Rule(
+            "Ebb peak after slack < 1.0 kt.",
+            "Same reasoning, applied to the current building during your ascent.",
+        ),
+        Rule(
+            "Combined exchange ≤ 1.5 kt.",
+            "Rules out days where both peaks sneak in just under 1.0 kt.",
+        ),
+        Rule(
+            "Splash at slack.",
+            "No lead time applied — the listed time is the predicted slack itself.",
+        ),
+    ),
 )
 
 

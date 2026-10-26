@@ -1,4 +1,4 @@
-from models import Current, DiveLocation, DiveSite, DiveSolution, Tide
+from models import Current, DiveLocation, DiveSite, DiveSolution, Rule, Tide
 from sites._common import exchange_description, safe_slack_triples
 
 site = DiveSite(
@@ -7,6 +7,31 @@ site = DiveSite(
     tide_station_id="9447110",
     current_station_id="PUG1701",
     location=DiveLocation(address="North Beach, Deception Pass State Park, Ault Field, WA"),
+    rules=(
+        Rule(
+            "Slack before ebb — the peak before slack must be a flood.",
+            "Deception Pass is a narrow, high-flow channel. Slack before ebb puts "
+            "the building current on the side of the pass you want to be swept toward.",
+        ),
+        Rule(
+            "Flood peak before slack < 6.0 kt.",
+            "Caps how much water is still moving as the slack approaches.",
+        ),
+        Rule(
+            "Ebb peak after slack < 5.5 kt.",
+            "Slightly tighter than the flood limit — the ebb is what builds under "
+            "you while you are still in the water.",
+        ),
+        Rule(
+            "Combined exchange ≤ 12.0 kt.",
+            "Both peaks can pass individually and still add up to a slack that is "
+            "over almost as soon as it starts.",
+        ),
+        Rule(
+            "Splash at slack.",
+            "No lead time applied — the listed time is the predicted slack itself.",
+        ),
+    ),
 )
 
 
