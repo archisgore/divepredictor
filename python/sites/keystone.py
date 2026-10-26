@@ -1,4 +1,4 @@
-from models import Current, DiveLocation, DiveSite, DiveSolution, Rule, Tide
+from models import Current, DiveLocation, DiveSite, DiveSolution, Tide
 from sites._common import exchange_description, safe_slack_triples
 
 site = DiveSite(
@@ -8,25 +8,10 @@ site = DiveSite(
     current_station_id="PUG1624",
     location=DiveLocation(address="12981 WA-20, Coupeville, WA 98239"),
     rules=(
-        Rule(
-            "Any slack qualifies — slack before ebb and slack before flood both count.",
-            "The jetty is protected enough on both sides that direction of the "
-            "following current is not the deciding factor; size of the exchange is.",
-        ),
-        Rule(
-            "Total exchange ≤ 6.0 kt (flood peak + ebb peak, magnitudes added).",
-            "Admiralty Inlet moves a lot of water. A big exchange means a short, "
-            "sharp slack that closes before you are back at the jetty.",
-        ),
-        Rule(
-            "Swing rate ≤ 0.55 kt per 6 minutes between the two surrounding peaks.",
-            "Rules out a modest exchange that happens unusually fast, which gives "
-            "the same narrow slack window as a large one.",
-        ),
-        Rule(
-            "Splash at slack.",
-            "No lead time applied — the listed time is the predicted slack itself.",
-        ),
+        "Any slack — before ebb or before flood.",
+        "Total exchange ≤ 6.0 kt.",
+        "Swing rate ≤ 0.55 kt per 6 min between the surrounding peaks.",
+        "Splash at slack.",
     ),
 )
 
