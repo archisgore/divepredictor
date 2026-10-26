@@ -109,12 +109,29 @@ def _clamp_count(n: int | None) -> int:
     return n
 
 
+def _format_time(dt) -> str:
+    return dt.strftime("%I:%M %p").lstrip("0")
+
+
+def _format_lead(delta: timedelta) -> str:
+    minutes = int(delta.total_seconds() // 60)
+    if minutes % 60 == 0:
+        hours = minutes // 60
+        return f"{hours} hour" if hours == 1 else f"{hours} hours"
+    return f"{minutes} min"
+
+
 def _format_result(site: DiveSite, sol) -> dict:
+    # sol.time is the slack the rule matched. The headline time is when you
+    # should be in the water, which for some sites is earlier.
+    splash = sol.time - site.splash_offset
     return {
         "site_name": site.name,
-        "day": sol.time.strftime("%a, %b %d %Y"),
-        "time": sol.time.strftime("%I:%M %p").lstrip("0"),
-        "iso": sol.time.isoformat(),
+        "day": splash.strftime("%a, %b %d %Y"),
+        "time": _format_time(splash),
+        "iso": splash.isoformat(),
+        "slack_time": _format_time(sol.time),
+        "lead": _format_lead(site.splash_offset) if site.splash_offset else "",
         "description": sol.description,
     }
 
