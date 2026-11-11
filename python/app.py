@@ -165,9 +165,9 @@ def index(
         error = outcome.error
 
     return templates.TemplateResponse(
+        request,
         "index.html",
         {
-            "request": request,
             "sites": all_sites,
             "selected_site": site,
             "start_date": start.isoformat(),
